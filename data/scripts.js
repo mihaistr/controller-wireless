@@ -13,7 +13,7 @@ function update_consola(id_parametru, parametru) {
 function decToHex(num) {
   return num.toString(16)
 }
-//not in use; for future development to print transaction status
+//! not in use; deprecated (for future development to print transaction status)
 function afisare_raspuns_mb() {
   let parametru = decToHex(Number(document.getElementById("transaction_code").value));
   console.log(parametru);
@@ -26,10 +26,43 @@ function afisare_valoare_modbus() {
   document.getElementById("consola").value += timestamp() + " ---> " + "Request response: " + parametru + "\n";
   document.getElementById("consola").scrollTop = document.getElementById("consola").scrollHeight; //autoscroll
 }
-// submit form 
-function submit_value(id) {
-  document.getElementById(id).submit();
+
+async function fetchRegistriJSON() {
+
+  //let url = "/readHolding?functionCode=3&firstReg=0&regCount=2";
+  let url = "/readHolding?functionCode=3&firstReg=" + document.getElementById("firstReg").value + "&regCount=" + document.getElementById("regCount").value;
+  let response = await fetch(url);
+
+  if (response.ok) { // if HTTP-status is 200-299
+    let resultJSON = await response.json();
+    console.log(resultJSON);
+    console.log(typeof resultJSON);
+    console.log(typeof resultJSON.slaveRegisters[1]);
+
+
+    document.getElementById("mb_response").value = resultJSON.slaveRegisters[0];
+    afisare_valoare_modbus(resultJSON.slaveRegisters[0]);
+    console.log(resultJSON.slaveRegisters[1]);
+
+    // resultJSON.slaveRegisters.array.forEach(element => {
+    //   console.log(element);
+    //   afisare_valoare_modbus(element);
+    // });
+
+    // for (let i = 0; i < resultJSON.slaveRegisters.length; i++) {
+    //   console.log(resultJSON.slaveRegisters[i]);
+    //   afisare_valoare_modbus(resultJSON.slaveRegisters[i]);
+    // }
+
+
+
+  } else {
+    alert("HTTP-Error: " + response.status);
+  }
+
 }
+
+// todo: vezi daca mai e necesara, sau cauta o metoda noua
 // functie utilizata pentru a actualiza valoarea de start pentru multiple reads/writes
 // functia preia valoarea de start adress de la celalalt form
 function update_startAdressBit() {
@@ -37,10 +70,6 @@ function update_startAdressBit() {
 }
 function update_startAdressCoil() {
   document.getElementById("startAdressCoilCount").value = document.getElementById("startAdressCoil").value
-}
-
-function AutoRefresh(t) {
-  setTimeout("location.reload(true);", t);
 }
 
 /* Create buttons to open specific tab content. 
@@ -69,9 +98,24 @@ function default_open() {
 
 // verificare continut mesaj 
 function verificare_mesaj() {
+
+  // block the default behavior (refresh) of the buttons 
+  document.getElementById("button_readHolding").addEventListener("click", function (event) {
+    event.preventDefault()
+    console.log("cevaa");
+  });
+
+  document.getElementById("button_readCoils").addEventListener("click", function (event) {
+    event.preventDefault()
+    console.log("cevaa");
+  });
+
+
+
   if (!!window.EventSource) {
     var source = new EventSource('/events');
 
+ //  * still in use to print when device is connected
     source.addEventListener('open', function (e) {
       console.log("Events Connected");
     }, false);
@@ -81,11 +125,13 @@ function verificare_mesaj() {
         console.log("Events Disconnected");
       }
     }, false);
-
+    
+// ! depricated 
     source.addEventListener('message', function (e) {
       console.log("message", e.data);
     }, false);
 
+    // * still in use to send battery voltage
     source.addEventListener('voltage', function (e) {
       console.log("voltage", e.data);
       document.getElementById("batteryVoltage").value = e.data;
@@ -96,7 +142,7 @@ function verificare_mesaj() {
     //   document.getElementById("transaction_code").value = e.data;
     //   update_consola_raspuns(e.data);
     // }, false);
-
+// ! depricated
     source.addEventListener('mb_response', function (e) {
       console.log("mb_response", e.data);
       document.getElementById("mb_response").value = e.data;

@@ -8,6 +8,7 @@
 #include <LittleFS.h>
 #include <ModbusRTU.h>
 #include <SoftwareSerial.h>
+#include <ArduinoJson.h>
 
 #ifndef FUNCTIONS_H_
 #define FUNCTIONS_H_
@@ -18,6 +19,8 @@ ModbusRTU mb;
 
 AsyncWebServer server(80);
 AsyncEventSource events("/events");
+
+StaticJsonDocument<500> json_doc; // JSON file object
 
 const int analogInPin = A0; // ESP8266 Analog Pin ADC0 = A0
 
@@ -41,11 +44,6 @@ float voltage = 0; // value read
 
 uint16_t mb_response;      // store the modbus server response
 uint16_t transaction_code; // store the code that indicates the transaction status
-
-// // wireless connection
-const char *ssid = "Controller ModbusRS485";
-const char *password = "";
-
 
 #endif
 
@@ -73,11 +71,31 @@ void server_readHolding(); // process the readHolding function tab request
 
 void wifi_start()
 {
-    WiFi.softAP(ssid,password);
-    IPAddress IP = WiFi.softAPIP();
+    const char *ssid = "HUAWEI-1AN1IZ";
+    const char *password = "Huawei12345";
+    WiFi.begin(ssid, password);
+    Serial.println("");
+    // Wait for connection
+    while (WiFi.status() != WL_CONNECTED)
+    {
+        delay(500);
+        Serial.print(".");
+    }
+    Serial.println("");
+    Serial.print("Connected to ");
+    Serial.println(ssid);
+    Serial.print("IP address: ");
+    Serial.println(WiFi.localIP());
 
-    Serial.print("AP IP address: ");
-    Serial.println(IP);
+    // todo:  
+    // wireless connection 
+    // const char *ssid = "Controller ModbusRS485";
+    // const char *password = "";
+    // WiFi.softAP(ssid, password);
+    // IPAddress IP = WiFi.softAPIP();
+
+    // Serial.print("AP IP address: ");
+    // Serial.println(IP);
 }
 
 void server_start()
@@ -144,13 +162,16 @@ void server_readHolding()
     // readHolding?functionCode=3&firstReg=2&regCount=4
     server.on("/readHolding", HTTP_GET, [](AsyncWebServerRequest *request)
               {
-              functionCode = request->getParam(0)->value().toInt();
-              firstReg = request->getParam(1)->value().toInt();
+        functionCode = request->getParam(0)->value().toInt();
+        firstReg = request->getParam(1)->value().toInt();
               regCount = request->getParam(2)->value().toInt();
 
               send_modbus_readHolding(firstReg, regCount);
 
-              request->send(LittleFS, "/interfata_grafica.html", String(), false, processor); });
+        // todo: documentatie JSON
+        AsyncResponseStream *response = request->beginResponseStream("application/json");
+        serializeJson(json_doc, *response);
+        request->send(response); });
 }
 
 void notFound(AsyncWebServerRequest *request)
@@ -262,16 +283,27 @@ void send_modbus_readHolding(uint16_t firstReg, uint16_t regCount)
         Serial.printf("Request response = %.2d \n", res[0]);
         Serial.println();
 
-        mb_response = res[0];
-
         if (transaction_code != 0)
+        // todo: ataseaza de JSON
         { // sent to frontend the modbus response value
             events.send("NaN", "mb_response", millis());
         }
         else
         {
-            events.send(String(mb_response).c_str(), "mb_response", millis());
-            res[0] = 0;
+            json_doc["firstRegister"] = firstReg;
+            json_doc["registerCount"] = regCount;
+            json_doc["transactionResponse"] = mb_response;
+
+            // * folosit pentru a reafisa pagina dupa refresh
+            // request->send(LittleFS, "/interfata_grafica.html", String(), false, processor);
+
+            // Create the array that stores the values
+            JsonArray valoareRegistrii = json_doc.createNestedArray("slaveRegisters");
+            for (int i = 0; i < regCount; i++)
+            {
+                // Add the value at the end of the array
+                valoareRegistrii.add(res[i]);
+            }
         }
     }
 }

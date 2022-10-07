@@ -12,7 +12,7 @@
 
 </head>
 
-<body onload="default_open();verificare_mesaj();afisare_valoare_modbus()">
+<body onload="default_open();verificare_mesaj();">
     <!-- call functions at startup -->
 
     <a href="http://192.168.4.1/" style="text-decoration: inherit">
@@ -130,6 +130,7 @@
         </div>
 
     </form>
+    <!-- Settings tab end  -->
 
     <!-- Tab Functions -->
 
@@ -138,9 +139,11 @@
 
             <div class="column_function">
                 <h2>Discrete Read</h2>
-                <form action="/readCoils" method="get">
+                <form>
+                    <!-- <form action="/readCoils" method="get"> -->
                     <div class="grid-container">
                         <div class="grid-item item1"><label>Start Address</label></div>
+                        <!-- ! function code is deprecated, -->
                         <input type="hidden" id="functionCode" name="functionCode" value="1">
                         <div class="grid-item item2"><input type="number" id="startAdressBit" name="startAdress"
                                 value="0" min="0" max="65535" onclick="update_consola('Start Address', this.value)"><br>
@@ -149,8 +152,8 @@
                         <div class="grid-item item4"><input readonly type="number" id="coilCount" name="coilCount"
                                 value="1" min="0" max="255" onclick="update_consola('Coil Count', this.value)"><br>
                         </div>
-                        <div class="grid-item item5"><button id="button_readCoils"
-                                onclick=submit_value(button_readCoils);> Read Coils </button>
+                        <div class="grid-item item5"><button id="button_readCoils" onclick="fetchCoilsJSON()"> Read
+                                Coils </button>
                         </div>
                     </div>
                 </form><br>
@@ -162,19 +165,21 @@
         <div class="row_function">
             <div class="column_function">
                 <h2>Register Read</h2>
-                <form action="/readHolding" method="get">
+                <form>
+                    <!-- <form action="/readHolding" method="get"> -->
                     <div class="grid-container">
                         <div class="grid-item item1"><label> First Register </label></div>
+                        <!-- ! function code is deprecated -->
                         <input type="hidden" id="functionCode" name="functionCode" value="3">
                         <div class="grid-item item2"><input type="number" id="firstReg" name="firstReg" value="0"
                                 min="0" max="65535" onclick="update_consola('First Register', this.value)"><br></div>
                         <div class="grid-item item3"><label>Register Count</label></div>
                         <div class="grid-item item4">
-                            <input readonly type="number" id="regCount" name="regCount" value="1" min="0" max="255"
+                            <input type="number" id="regCount" name="regCount" value="2" min="0" max="100"
                                 onclick="update_consola('Register Count', this.value)"><br>
                         </div>
-                        <div class="grid-item item5"><button id="button_readCoils"
-                                onclick=submit_value(button_readCoils);> Read Holding
+                        <div class="grid-item item5"><button id="button_readHolding" onclick="fetchRegistriJSON()"> Read
+                                Holding
                                 Register</button>
                         </div>
                     </div>
@@ -182,6 +187,7 @@
             </div>
         </div>
     </div>
+    <!-- Function tab end -->
 
     <div>
         <!-- store the modbus response value -->
