@@ -21,13 +21,17 @@ function afisare_raspuns_mb() {
   document.getElementById("consola").scrollTop = document.getElementById("consola").scrollHeight; //autoscroll
 }
 // print in console modbus response value
-function afisare_valoare_modbus() {
-  let parametru = document.getElementById("mb_response").value;
+function afisare_valoare_modbus(parametru) {
   document.getElementById("consola").value += timestamp() + " ---> " + "Request response: " + parametru + "\n";
   document.getElementById("consola").scrollTop = document.getElementById("consola").scrollHeight; //autoscroll
 }
 
 async function fetchRegistriJSON() {
+
+  let firstReg = document.getElementById("firstReg").value;
+  let regCount = document.getElementById("regCount").value;
+
+  document.getElementById("consola").value += timestamp() + " INIT: Read " + regCount + " registers starting from: " + firstReg + "\n";
 
   //let url = "/readHolding?functionCode=3&firstReg=0&regCount=2";
   let url = "/readHolding?functionCode=3&firstReg=" + document.getElementById("firstReg").value + "&regCount=" + document.getElementById("regCount").value;
@@ -39,22 +43,10 @@ async function fetchRegistriJSON() {
     console.log(typeof resultJSON);
     console.log(typeof resultJSON.slaveRegisters[1]);
 
-
-    document.getElementById("mb_response").value = resultJSON.slaveRegisters[0];
-    afisare_valoare_modbus(resultJSON.slaveRegisters[0]);
-    console.log(resultJSON.slaveRegisters[1]);
-
-    // resultJSON.slaveRegisters.array.forEach(element => {
-    //   console.log(element);
-    //   afisare_valoare_modbus(element);
-    // });
-
-    // for (let i = 0; i < resultJSON.slaveRegisters.length; i++) {
-    //   console.log(resultJSON.slaveRegisters[i]);
-    //   afisare_valoare_modbus(resultJSON.slaveRegisters[i]);
-    // }
-
-
+    for (let i = 0; i < resultJSON.slaveRegisters.length; i++) {
+      console.log(resultJSON.slaveRegisters[i])
+      afisare_valoare_modbus(resultJSON.slaveRegisters[i])
+    }
 
   } else {
     alert("HTTP-Error: " + response.status);
@@ -102,12 +94,10 @@ function verificare_mesaj() {
   // block the default behavior (refresh) of the buttons 
   document.getElementById("button_readHolding").addEventListener("click", function (event) {
     event.preventDefault()
-    console.log("cevaa");
   });
 
   document.getElementById("button_readCoils").addEventListener("click", function (event) {
     event.preventDefault()
-    console.log("cevaa");
   });
 
 
@@ -115,7 +105,7 @@ function verificare_mesaj() {
   if (!!window.EventSource) {
     var source = new EventSource('/events');
 
- //  * still in use to print when device is connected
+    //  * still in use to print when device is connected
     source.addEventListener('open', function (e) {
       console.log("Events Connected");
     }, false);
@@ -125,8 +115,8 @@ function verificare_mesaj() {
         console.log("Events Disconnected");
       }
     }, false);
-    
-// ! depricated 
+
+    // ! depricated 
     source.addEventListener('message', function (e) {
       console.log("message", e.data);
     }, false);
@@ -142,7 +132,7 @@ function verificare_mesaj() {
     //   document.getElementById("transaction_code").value = e.data;
     //   update_consola_raspuns(e.data);
     // }, false);
-// ! depricated
+    // ! depricated
     source.addEventListener('mb_response', function (e) {
       console.log("mb_response", e.data);
       document.getElementById("mb_response").value = e.data;

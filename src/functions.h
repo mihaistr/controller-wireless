@@ -87,8 +87,8 @@ void wifi_start()
     Serial.print("IP address: ");
     Serial.println(WiFi.localIP());
 
-    // todo:  
-    // wireless connection 
+    // todo:
+    // wireless connection
     // const char *ssid = "Controller ModbusRS485";
     // const char *password = "";
     // WiFi.softAP(ssid, password);
@@ -290,9 +290,7 @@ void send_modbus_readHolding(uint16_t firstReg, uint16_t regCount)
         }
         else
         {
-            json_doc["firstRegister"] = firstReg;
-            json_doc["registerCount"] = regCount;
-            json_doc["transactionResponse"] = mb_response;
+            //json_doc["transactionResponse"] = mb_response;
 
             // * folosit pentru a reafisa pagina dupa refresh
             // request->send(LittleFS, "/interfata_grafica.html", String(), false, processor);
