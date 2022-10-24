@@ -14,12 +14,13 @@ function decToHex(num) {
   return num.toString(16)
 }
 //! not in use; deprecated (for future development to print transaction status)
-function afisare_raspuns_mb() {
-  let parametru = decToHex(Number(document.getElementById("transaction_code").value));
-  console.log(parametru);
-  document.getElementById("consola").value += timestamp() + " ---> " + "Request result: " + parametru + "\n";
-  document.getElementById("consola").scrollTop = document.getElementById("consola").scrollHeight; //autoscroll
-}
+// function afisare_raspuns_mb() {
+//   let parametru = decToHex(Number(document.getElementById("transaction_code").value));
+//   console.log(parametru);
+//   document.getElementById("consola").value += timestamp() + " ---> " + "Request result: " + parametru + "\n";
+//   document.getElementById("consola").scrollTop = document.getElementById("consola").scrollHeight; //autoscroll
+// }
+
 // print in console modbus response value
 function afisare_valoare_modbus() {
   let parametru = document.getElementById("mb_response").value;
@@ -27,10 +28,20 @@ function afisare_valoare_modbus() {
   document.getElementById("consola").scrollTop = document.getElementById("consola").scrollHeight; //autoscroll
 }
 
+// print info in consola about send request
+// todo: implement so it can be used for multiple functions
+// function print_send_request(firstReg,regCount) {
+//   document.getElementById("consola").value += timestamp() + " INIT: Read " + regCount + " registers starting from: " + firstReg + "\n";
+// }
+
 async function fetchRegistriJSON() {
+  let firstReg = document.getElementById("firstReg").value;
+  let regCount = document.getElementById("regCount").value;
+
+  document.getElementById("consola").value += timestamp() + " INIT: Read " + regCount + " registers starting from: " + firstReg + "\n";
 
   //let url = "/readHolding?functionCode=3&firstReg=0&regCount=2";
-  let url = "/readHolding?functionCode=3&firstReg=" + document.getElementById("firstReg").value + "&regCount=" + document.getElementById("regCount").value;
+  let url = "/readHolding?functionCode=3&firstReg=" + firstReg + "&regCount=" + regCount;
   let response = await fetch(url);
 
   if (response.ok) { // if HTTP-status is 200-299
@@ -39,10 +50,13 @@ async function fetchRegistriJSON() {
     console.log(typeof resultJSON);
     console.log(typeof resultJSON.slaveRegisters[1]);
 
-
-    document.getElementById("mb_response").value = resultJSON.slaveRegisters[0];
-    afisare_valoare_modbus(resultJSON.slaveRegisters[0]);
+    document.getElementById("consola").value += timestamp() + " DONE: " + resultJSON.transactionCode + "\n";
+    document.getElementById("consola").value += timestamp() + resultJSON.slaveRegisters[0];
+    // document.getElementById("mb_response").value = resultJSON.slaveRegisters[0];
+   // afisare_valoare_modbus(resultJSON.slaveRegisters[0]);
     console.log(resultJSON.slaveRegisters[1]);
+
+
 
     // resultJSON.slaveRegisters.array.forEach(element => {
     //   console.log(element);
@@ -54,13 +68,13 @@ async function fetchRegistriJSON() {
     //   afisare_valoare_modbus(resultJSON.slaveRegisters[i]);
     // }
 
-
-
   } else {
     alert("HTTP-Error: " + response.status);
   }
 
 }
+
+
 
 // todo: vezi daca mai e necesara, sau cauta o metoda noua
 // functie utilizata pentru a actualiza valoarea de start pentru multiple reads/writes
@@ -115,7 +129,7 @@ function verificare_mesaj() {
   if (!!window.EventSource) {
     var source = new EventSource('/events');
 
- //  * still in use to print when device is connected
+    //  * still in use to print when device is connected
     source.addEventListener('open', function (e) {
       console.log("Events Connected");
     }, false);
@@ -125,8 +139,8 @@ function verificare_mesaj() {
         console.log("Events Disconnected");
       }
     }, false);
-    
-// ! depricated 
+
+    // ! depricated 
     source.addEventListener('message', function (e) {
       console.log("message", e.data);
     }, false);
@@ -142,7 +156,7 @@ function verificare_mesaj() {
     //   document.getElementById("transaction_code").value = e.data;
     //   update_consola_raspuns(e.data);
     // }, false);
-// ! depricated
+    // ! depricated
     source.addEventListener('mb_response', function (e) {
       console.log("mb_response", e.data);
       document.getElementById("mb_response").value = e.data;
