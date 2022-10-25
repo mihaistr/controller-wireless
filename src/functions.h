@@ -71,8 +71,12 @@ void server_readHolding(); // process the readHolding function tab request
 
 void wifi_start()
 {
-    const char *ssid = "HUAWEI-1AN1IZ";
-    const char *password = "Huawei12345";
+    // const char *ssid = "HUAWEI-1AN1IZ";
+    // const char *password = "Huawei12345";
+
+    const char *ssid = "Mihai.Str";
+    const char *password = "12345678";
+
     WiFi.begin(ssid, password);
     Serial.println("");
     // Wait for connection
@@ -290,7 +294,7 @@ void send_modbus_readHolding(uint16_t firstReg, uint16_t regCount)
         }
         else
         {
-            //json_doc["transactionResponse"] = mb_response;
+            // json_doc["transactionResponse"] = mb_response;
 
             // * folosit pentru a reafisa pagina dupa refresh
             // request->send(LittleFS, "/interfata_grafica.html", String(), false, processor);
