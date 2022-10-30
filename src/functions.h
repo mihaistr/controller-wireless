@@ -244,22 +244,22 @@ bool cb(Modbus::ResultCode event, uint16_t transactionId, void *data)
 
 void send_modbus_readCoil(uint16_t startAdress, uint16_t coilCount)
 {
-    bool coils[coilCount];
+    // bool coils[coilCount];
 
-    if (!mb.slave())
-    { // send modbus function code $01
-        mb.readCoil(serverAdress, firstReg, coils, coilCount, cb);
+    // if (!mb.slave())
+    // { // send modbus function code $01
+    //     mb.readCoil(serverAdress, firstReg, coils, coilCount, cb);
 
-        while (mb.slave())
-        { // Check if transaction is active
-            mb.task();
-            delay(10);
-        }
-        Serial.println("\n");
-        Serial.printf("Request response = %.2d \n", coils[0]);
-        Serial.println();
+    //     while (mb.slave())
+    //     { // Check if transaction is active
+    //         mb.task();
+    //         delay(10);
+    //     }
+    //     Serial.println("\n");
+    //     Serial.printf("Request response = %.2d \n", coils[0]);
+    //     Serial.println();
 
-        mb_response = coils[0]; // store modbus response value
+    //     mb_response = coils[0]; // store modbus response value
 
         if (transactionCode != 0)
         { // in case of error set ansver as invalid
