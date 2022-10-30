@@ -143,12 +143,11 @@ void server_settings()
 
 void server_readCoils()
 {
-    // readCoils?functionCode=1&startAdress=0&coilCount=1
+    // readCoils?startAdress=0&coilCount=1
     server.on("/readCoils", HTTP_GET, [](AsyncWebServerRequest *request)
               {
-              functionCode = request->getParam(0)->value().toInt();
-              startAdress = request->getParam(1)->value().toInt();
-              coilCount = request->getParam(2)->value().toInt();
+              startAdress = request->getParam(0)->value().toInt();
+              coilCount = request->getParam(1)->value().toInt();
             
               Serial.println("startAdress"); // print in serial command for debug reasons
               Serial.println(startAdress);
@@ -157,20 +156,20 @@ void server_readCoils()
 
               send_modbus_readCoil(startAdress,coilCount);
 
-              request->send(LittleFS, "/interfata_grafica.html", 
-              String(), false, processor); });
+        AsyncResponseStream *response = request->beginResponseStream("application/json");
+        serializeJson(json_doc, *response);
+        request->send(response); });
 }
 
 void server_readHolding()
 {
-    // readHolding?functionCode=3&firstReg=2&regCount=4
+    // readHolding?firstReg=2&regCount=4
     server.on("/readHolding", HTTP_GET, [](AsyncWebServerRequest *request)
               {
-        functionCode = request->getParam(0)->value().toInt();
-        firstReg = request->getParam(1)->value().toInt();
-              regCount = request->getParam(2)->value().toInt();
+        firstReg = request->getParam(0)->value().toInt();
+        regCount = request->getParam(1)->value().toInt();
 
-              send_modbus_readHolding(firstReg, regCount);
+        send_modbus_readHolding(firstReg, regCount);
 
         // todo: documentatie JSON
         AsyncResponseStream *response = request->beginResponseStream("application/json");
@@ -256,17 +255,21 @@ void send_modbus_readCoil(uint16_t startAdress, uint16_t coilCount)
         Serial.printf("Request response = %.2d \n", coils[0]);
         Serial.println();
 
-        mb_response = coils[0]; // store modbus response value
-
         if (transaction_code != 0)
-        { // in case of error set ansver as invalid
-            events.send("NaN", "mb_response", millis());
+        { // sent to frontend the modbus response value
+            json_doc["transaction_code"] = transaction_code;
+            json_doc["slaveCoils"] = NULL;
         }
         else
-        { // sent to frontend the modbus response value
-            events.send(String(mb_response).c_str(), "mb_response", millis());
-            // resert the value
-            coils[0] = 0;
+        {
+            json_doc["transaction_code"] = transaction_code;
+            // Create the array that stores the values
+            JsonArray valoareRegistrii = json_doc.createNestedArray("slaveCoils");
+            for (int i = 0; i < coilCount; i++)
+            {
+                // Add the value at the end of the array
+                valoareRegistrii.add(coils[i]);
+            }
         }
     }
 }
@@ -277,6 +280,7 @@ void send_modbus_readHolding(uint16_t firstReg, uint16_t regCount)
     if (!mb.slave())
     {                                                           // send modbus function code $03
         mb.readHreg(serverAdress, firstReg, res, regCount, cb); // Send Read Hreg from Modbus Server
+
         // Check if no transaction in progress
         while (mb.slave())
         { // Check if transaction is active
@@ -288,7 +292,6 @@ void send_modbus_readHolding(uint16_t firstReg, uint16_t regCount)
         Serial.println();
 
         if (transaction_code != 0)
-        // todo: ataseaza de JSON
         { // sent to frontend the modbus response value
             json_doc["transaction_code"] = transaction_code;
             json_doc["slaveRegisters"] = NULL;

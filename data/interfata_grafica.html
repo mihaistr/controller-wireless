@@ -142,14 +142,12 @@
                 <form>
                     <!-- <form action="/readCoils" method="get"> -->
                     <div class="grid-container">
-                        <div class="grid-item item1"><label>Start Address</label></div>
-                        <!-- ! function code is deprecated, -->
-                        <input type="hidden" id="functionCode" name="functionCode" value="1">
-                        <div class="grid-item item2"><input type="number" id="startAdressBit" name="startAdress"
+                        <div class="grid-item item1"><label>Start Address</label></div>                   
+                        <div class="grid-item item2"><input type="number" id="startAdress" name="startAdress"
                                 value="0" min="0" max="65535" onclick="update_consola('Start Address', this.value)"><br>
                         </div>
                         <div class="grid-item item3"><label>Coil Count</label></div>
-                        <div class="grid-item item4"><input readonly type="number" id="coilCount" name="coilCount"
+                        <div class="grid-item item4"><input type="number" id="coilCount" name="coilCount"
                                 value="1" min="0" max="255" onclick="update_consola('Coil Count', this.value)"><br>
                         </div>
                         <div class="grid-item item5"><button id="button_readCoils" onclick="fetchCoilsJSON()"> Read
@@ -169,8 +167,6 @@
                     <!-- <form action="/readHolding" method="get"> -->
                     <div class="grid-container">
                         <div class="grid-item item1"><label> First Register </label></div>
-                        <!-- ! function code is deprecated -->
-                        <input type="hidden" id="functionCode" name="functionCode" value="3">
                         <div class="grid-item item2"><input type="number" id="firstReg" name="firstReg" value="0"
                                 min="0" max="65535" onclick="update_consola('First Register', this.value)"><br></div>
                         <div class="grid-item item3"><label>Register Count</label></div>
