@@ -1,72 +1,83 @@
-// get timestamp value
 function timestamp() {
+  // get timestamp value
   let currentDate = new Date();
   let time = currentDate.getHours() + ":" + currentDate.getMinutes() + ":" + currentDate.getSeconds();
   return time;
 }
-// print in consola actiunile utilizatorului
+
 function update_consola(id_parametru, parametru) {
+  // print in consola actiunile utilizatorului
   document.getElementById("consola").value += timestamp() + " ---> " + id_parametru + " = " + parametru + "\n";
   document.getElementById("consola").scrollTop = document.getElementById("consola").scrollHeight; //autoscroll
 }
-// convert form decimal to hexadecimal
+
 function decToHex(num) {
+  // convert form decimal to hexadecimal
   return num.toString(16)
 }
-//! not in use; deprecated (for future development to print transaction status)
-// function afisare_raspuns_mb() {
-//   let parametru = decToHex(Number(document.getElementById("transaction_code").value));
-//   console.log(parametru);
-//   document.getElementById("consola").value += timestamp() + " ---> " + "Request result: " + parametru + "\n";
-//   document.getElementById("consola").scrollTop = document.getElementById("consola").scrollHeight; //autoscroll
-// }
 
-// print in console modbus response value
-function afisare_valoare_modbus() {
-  let parametru = document.getElementById("mb_response").value;
-  document.getElementById("consola").value += timestamp() + " ---> " + "Request response: " + parametru + "\n";
+function afisare_raspuns_modbus(parametru) {
+  // print cod succes sau eroare
+
+  let text_raspuns_cerere;
+
+  switch (parametru) {
+    case 0:
+      text_raspuns_cerere = "Transaction successful";
+      break;
+
+    case 228:
+      text_raspuns_cerere = "Response timeout expired";
+      break;
+
+    case 2:
+      text_raspuns_cerere = "Output Address not in Range";
+      break;
+
+    case 3:
+      text_raspuns_cerere = "Output Value not in Range";
+      break;
+
+    case 4:
+      text_raspuns_cerere = "Slave or Master Device Fails to process request";
+      break;
+  }
+
+  document.getElementById("consola").value += timestamp() + " ---> " + text_raspuns_cerere + "\n";
+  document.getElementById("consola").scrollTop = document.getElementById("consola").scrollHeight; //autoscroll
+
+}
+
+function afisare_valoare_modbus(parametru1, parametru2) {
+  // print in console modbus response value
+
+  document.getElementById("consola").value += timestamp() + " ---> " + "Valoare registru " + parametru1 + " : " + parametru2 + "\n";
   document.getElementById("consola").scrollTop = document.getElementById("consola").scrollHeight; //autoscroll
 }
 
-// print info in consola about send request
-// todo: implement so it can be used for multiple functions
-// function print_send_request(firstReg,regCount) {
-//   document.getElementById("consola").value += timestamp() + " INIT: Read " + regCount + " registers starting from: " + firstReg + "\n";
-// }
-
 async function fetchRegistriJSON() {
+
   let firstReg = document.getElementById("firstReg").value;
   let regCount = document.getElementById("regCount").value;
 
   document.getElementById("consola").value += timestamp() + " INIT: Read " + regCount + " registers starting from: " + firstReg + "\n";
 
   //let url = "/readHolding?functionCode=3&firstReg=0&regCount=2";
-  let url = "/readHolding?functionCode=3&firstReg=" + firstReg + "&regCount=" + regCount;
+  let url = "/readHolding?functionCode=3&firstReg=" + document.getElementById("firstReg").value + "&regCount=" + document.getElementById("regCount").value;
   let response = await fetch(url);
 
   if (response.ok) { // if HTTP-status is 200-299
+
     let resultJSON = await response.json();
     console.log(resultJSON);
-    console.log(typeof resultJSON);
-    console.log(typeof resultJSON.slaveRegisters[1]);
+    console.log(typeof resultJSON.transaction_code);
 
-    document.getElementById("consola").value += timestamp() + " DONE: " + resultJSON.transactionCode + "\n";
-    document.getElementById("consola").value += timestamp() + resultJSON.slaveRegisters[0];
-    // document.getElementById("mb_response").value = resultJSON.slaveRegisters[0];
-   // afisare_valoare_modbus(resultJSON.slaveRegisters[0]);
-    console.log(resultJSON.slaveRegisters[1]);
+    afisare_raspuns_modbus(resultJSON.transaction_code);
 
-
-
-    // resultJSON.slaveRegisters.array.forEach(element => {
-    //   console.log(element);
-    //   afisare_valoare_modbus(element);
-    // });
-
-    // for (let i = 0; i < resultJSON.slaveRegisters.length; i++) {
-    //   console.log(resultJSON.slaveRegisters[i]);
-    //   afisare_valoare_modbus(resultJSON.slaveRegisters[i]);
-    // }
+    for (let i = 0; i < resultJSON.slaveRegisters.length; i++) {
+      console.log(resultJSON.slaveRegisters[i]);
+      afisare_valoare_modbus(parseInt(document.getElementById("firstReg").value) + i, resultJSON.slaveRegisters[i]);
+    }
 
   } else {
     alert("HTTP-Error: " + response.status);
@@ -74,17 +85,16 @@ async function fetchRegistriJSON() {
 
 }
 
-
-
 // todo: vezi daca mai e necesara, sau cauta o metoda noua
-// functie utilizata pentru a actualiza valoarea de start pentru multiple reads/writes
-// functia preia valoarea de start adress de la celalalt form
 function update_startAdressBit() {
+  // functie utilizata pentru a actualiza valoarea de start pentru multiple reads/writes
+  // functia preia valoarea de start adress de la celalalt form
   document.getElementById("startAdressBitCount").value = document.getElementById("startAdressBit").value
 }
 function update_startAdressCoil() {
   document.getElementById("startAdressCoilCount").value = document.getElementById("startAdressCoil").value
 }
+
 
 /* Create buttons to open specific tab content. 
 All <div> elements with class="tabcontent" are hidden by default (with CSS & JS). 
@@ -110,21 +120,18 @@ function default_open() {
   document.getElementById("defaultOpen").click();
 }
 
-// verificare continut mesaj 
+
 function verificare_mesaj() {
+  // verificare continut mesaj
 
   // block the default behavior (refresh) of the buttons 
   document.getElementById("button_readHolding").addEventListener("click", function (event) {
     event.preventDefault()
-    console.log("cevaa");
   });
 
   document.getElementById("button_readCoils").addEventListener("click", function (event) {
     event.preventDefault()
-    console.log("cevaa");
   });
-
-
 
   if (!!window.EventSource) {
     var source = new EventSource('/events');
@@ -140,27 +147,10 @@ function verificare_mesaj() {
       }
     }, false);
 
-    // ! depricated 
-    source.addEventListener('message', function (e) {
-      console.log("message", e.data);
-    }, false);
-
     // * still in use to send battery voltage
     source.addEventListener('voltage', function (e) {
       console.log("voltage", e.data);
       document.getElementById("batteryVoltage").value = e.data;
-    }, false);
-
-    // source.addEventListener('transaction_code', function (e) {
-    //   console.log("transaction_code", e.data);
-    //   document.getElementById("transaction_code").value = e.data;
-    //   update_consola_raspuns(e.data);
-    // }, false);
-    // ! depricated
-    source.addEventListener('mb_response', function (e) {
-      console.log("mb_response", e.data);
-      document.getElementById("mb_response").value = e.data;
-      update_consola_raspuns(e.data);
     }, false);
 
   }
