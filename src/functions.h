@@ -20,7 +20,7 @@ ModbusRTU mb;
 AsyncWebServer server(80);
 AsyncEventSource events("/events");
 
-StaticJsonDocument<74> json_doc; // JSON file object
+StaticJsonDocument<500> json_doc; // JSON file object
 
 const int analogInPin = A0; // ESP8266 Analog Pin ADC0 = A0
 
@@ -42,8 +42,8 @@ uint16_t regCount = 1;
 
 float voltage = 0; // value read
 
-uint16_t mb_response;     // store the modbus server response
-uint16_t transactionCode; // store the code that indicates the transaction status
+uint16_t mb_response;      // store the modbus server response
+uint16_t transaction_code; // store the code that indicates the transaction status
 
 #endif
 
@@ -73,6 +73,10 @@ void wifi_start()
 {
     const char *ssid = "HUAWEI-1AN1IZ";
     const char *password = "Huawei12345";
+
+    // const char *ssid = "Mihai.Str";
+    // const char *password = "12345678";
+
     WiFi.begin(ssid, password);
     Serial.println("");
     // Wait for connection
@@ -164,9 +168,9 @@ void server_readHolding()
               {
         functionCode = request->getParam(0)->value().toInt();
         firstReg = request->getParam(1)->value().toInt();
-        regCount = request->getParam(2)->value().toInt();
+              regCount = request->getParam(2)->value().toInt();
 
-        send_modbus_readHolding(firstReg, regCount);
+              send_modbus_readHolding(firstReg, regCount);
 
         // todo: documentatie JSON
         AsyncResponseStream *response = request->beginResponseStream("application/json");
@@ -196,8 +200,7 @@ void modbus_start()
 
 bool cb(Modbus::ResultCode event, uint16_t transactionId, void *data)
 { // Callback to monitor errors
-    transactionCode = event;
-
+    transaction_code = event;
     switch (event)
     {
     case Modbus::EX_SUCCESS: // no modbus error
@@ -205,36 +208,30 @@ bool cb(Modbus::ResultCode event, uint16_t transactionId, void *data)
         Serial.print("Transaction code: 0x");
         Serial.print(event, HEX);
         Serial.print(" -> Transaction successful");
-        json_doc["transactionCode"] = "Transaction successful";
         break;
     case Modbus::EX_TIMEOUT: // response not arrived in the expected time
         Serial.println("\n");
         Serial.print("Transaction code: 0x");
         Serial.print(event, HEX);
         Serial.print(" -> Response timeout expired");
-        json_doc["transactionCode"] = "Response timeout expired";
         break;
     case Modbus::EX_ILLEGAL_ADDRESS: // requested address not in accessible range
         Serial.println("\n");
         Serial.print("Transaction code: 0x");
         Serial.print(event, HEX);
         Serial.print(" -> Output Address not in Range");
-        json_doc["transactionCode"] = "Output Address not in Range";
         break;
     case Modbus::EX_ILLEGAL_VALUE:
         Serial.println("\n");
         Serial.print("Transaction code: 0x");
         Serial.print(event, HEX);
         Serial.print(" -> Output Value not in Range");
-        json_doc["transactionCode"] = "Output Value not in Range";
-
         break;
     case Modbus::EX_SLAVE_FAILURE:
         Serial.println("\n");
         Serial.print("Transaction code: 0x");
         Serial.print(event, HEX);
         Serial.print(" -> Slave or Master Device Fails to process request");
-        json_doc["transactionCode"] = "Slave or Master Device Fails to process request";
         break;
     default:
         break;
@@ -244,24 +241,24 @@ bool cb(Modbus::ResultCode event, uint16_t transactionId, void *data)
 
 void send_modbus_readCoil(uint16_t startAdress, uint16_t coilCount)
 {
-    // bool coils[coilCount];
+    bool coils[coilCount];
 
-    // if (!mb.slave())
-    // { // send modbus function code $01
-    //     mb.readCoil(serverAdress, firstReg, coils, coilCount, cb);
+    if (!mb.slave())
+    { // send modbus function code $01
+        mb.readCoil(serverAdress, firstReg, coils, coilCount, cb);
 
-    //     while (mb.slave())
-    //     { // Check if transaction is active
-    //         mb.task();
-    //         delay(10);
-    //     }
-    //     Serial.println("\n");
-    //     Serial.printf("Request response = %.2d \n", coils[0]);
-    //     Serial.println();
+        while (mb.slave())
+        { // Check if transaction is active
+            mb.task();
+            delay(10);
+        }
+        Serial.println("\n");
+        Serial.printf("Request response = %.2d \n", coils[0]);
+        Serial.println();
 
-    //     mb_response = coils[0]; // store modbus response value
+        mb_response = coils[0]; // store modbus response value
 
-        if (transactionCode != 0)
+        if (transaction_code != 0)
         { // in case of error set ansver as invalid
             events.send("NaN", "mb_response", millis());
         }
@@ -276,43 +273,37 @@ void send_modbus_readCoil(uint16_t startAdress, uint16_t coilCount)
 
 void send_modbus_readHolding(uint16_t firstReg, uint16_t regCount)
 {
-    uint16_t res[regCount]; // vector to store the requested values form the slave.
-
+    uint16_t res[regCount];
     if (!mb.slave())
     {                                                           // send modbus function code $03
         mb.readHreg(serverAdress, firstReg, res, regCount, cb); // Send Read Hreg from Modbus Server
         // Check if no transaction in progress
-
         while (mb.slave())
         { // Check if transaction is active
             mb.task();
             delay(10);
         }
+        Serial.println("\n");
+        Serial.printf("Request response = %.2d \n", res[0]);
+        Serial.println();
 
-        JsonArray valoareRegistrii = json_doc.createNestedArray("slaveRegisters");
-        for (int i = 0; i < regCount; i++)
-        {
-            // Add the value at the end of the array
-            valoareRegistrii.add(res[i]);
-            Serial.println("\n");
-            Serial.printf("Request response = %.2d \n", res[i]);
-            Serial.println();
+        if (transaction_code != 0)
+        // todo: ataseaza de JSON
+        { // sent to frontend the modbus response value
+            json_doc["transaction_code"] = transaction_code;
+            json_doc["slaveRegisters"] = NULL;
         }
-
-        // if (transactionCode != 0)
-        // // todo: ataseaza de JSON
-        // { // sent to frontend the modbus response value
-        //   // json_doc["slaveRegisters"] = "NaN";
-        // }
-        // else
-        // { // Create the array that stores the values for registers
-        //     JsonArray valoareRegistrii = json_doc.createNestedArray("slaveRegisters");
-        //     for (int i = 0; i < regCount; i++)
-        //     {
-        //         // Add the value at the end of the array
-        //         valoareRegistrii.add(res[i]);
-        //     }
-        // }
+        else
+        {
+            json_doc["transaction_code"] = transaction_code;
+            // Create the array that stores the values
+            JsonArray valoareRegistrii = json_doc.createNestedArray("slaveRegisters");
+            for (int i = 0; i < regCount; i++)
+            {
+                // Add the value at the end of the array
+                valoareRegistrii.add(res[i]);
+            }
+        }
     }
 }
 
@@ -324,16 +315,6 @@ String processor(const String &var)
     {
         return String(voltage);
     }
-    // for future development
-    // if (var == "transactionCode")
-    // {
-    //     return String(transactionCode);
-    // }
-    // return String();
 
-    if (var == "MODBUS_RESPONSE")
-    {
-        return String(mb_response);
-    }
     return String();
 }
