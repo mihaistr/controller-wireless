@@ -1,133 +1,4 @@
-function timestamp() {
-  // get timestamp value
-  let currentDate = new Date();
-  let time = currentDate.getHours() + ":" + currentDate.getMinutes() + ":" + currentDate.getSeconds();
-  return time;
-}
-
-function update_consola(id_parametru, parametru) {
-  // print in consola actiunile utilizatorului
-  document.getElementById("consola").value += timestamp() + " ---> " + id_parametru + " = " + parametru + "\n";
-  document.getElementById("consola").scrollTop = document.getElementById("consola").scrollHeight; //autoscroll
-}
-
-function decToHex(num) {
-  // convert form decimal to hexadecimal
-  return num.toString(16)
-}
-
-function afisare_raspuns_modbus(parametru) {
-  // print cod succes sau eroare
-
-  let text_raspuns_cerere;
-
-  switch (parametru) {
-    case 0:
-      text_raspuns_cerere = "Transaction successful";
-      break;
-
-    case 228:
-      text_raspuns_cerere = "Response timeout expired";
-      break;
-
-    case 2:
-      text_raspuns_cerere = "Output Address not in Range";
-      break;
-
-    case 3:
-      text_raspuns_cerere = "Output Value not in Range";
-      break;
-
-    case 4:
-      text_raspuns_cerere = "Slave or Master Device Fails to process request";
-      break;
-  }
-
-  document.getElementById("consola").value += timestamp() + " ---> " + text_raspuns_cerere + "\n";
-  document.getElementById("consola").scrollTop = document.getElementById("consola").scrollHeight; //autoscroll
-
-}
-
-function afisare_valoare_modbus(tip_data, parametru1, parametru2) { // tip_data  = coil sau registru (register)
-  // print in console modbus response value                         // parametru1 = register number 
-  // parametru2 = actual register value
-
-  document.getElementById("consola").value += timestamp() + " ---> " + "Valoare " + tip_data + " " + parametru1 + " : " + parametru2 + "\n";
-  document.getElementById("consola").scrollTop = document.getElementById("consola").scrollHeight; //autoscroll
-}
-
-async function fetchCoilsJSON() {
-  // trimitere cerere catre backend pentru citirea de coils
-
-  let startAdress = document.getElementById("startAdress").value;
-  let coilCount = document.getElementById("coilCount").value;
-
-  document.getElementById("consola").value += timestamp() + " INIT: Read " + coilCount + " coils starting from: " + startAdress + "\n";
-
-  //let url = //readCoils?startAdress=0&coilCount=1;
-  let url = "/readCoils?startAdress=" + document.getElementById("startAdress").value + "&coilCount=" + document.getElementById("coilCount").value;
-  let response = await fetch(url);
-
-  if (response.ok) { // if HTTP-status is 200-299
-
-    let resultJSON = await response.json();
-    console.log(resultJSON);
-    console.log(typeof resultJSON.transaction_code);
-
-    afisare_raspuns_modbus(resultJSON.transaction_code);
-
-    for (let i = 0; i < resultJSON.slaveCoils.length; i++) {
-      console.log(resultJSON.slaveCoils[i]);
-      afisare_valoare_modbus("coil", parseInt(document.getElementById("startAdress").value) + i, resultJSON.slaveCoils[i]);
-    }
-
-  } else {
-    alert("HTTP-Error: " + response.status);
-  }
-
-}
-
-async function fetchRegistriJSON() {
-  // trimitere cerere catre backend pentru citirea de holding registers
-
-  let firstReg = document.getElementById("firstReg").value;
-  let regCount = document.getElementById("regCount").value;
-
-  document.getElementById("consola").value += timestamp() + " INIT: Read " + regCount + " registers starting from: " + firstReg + "\n";
-
-  //let url = "/readHolding?firstReg=0&regCount=2";
-  let url = "/readHolding?firstReg=" + document.getElementById("firstReg").value + "&regCount=" + document.getElementById("regCount").value;
-  let response = await fetch(url);
-
-  if (response.ok) { // if HTTP-status is 200-299
-
-    let resultJSON = await response.json();
-    console.log(resultJSON);
-    console.log(typeof resultJSON.transaction_code);
-
-    afisare_raspuns_modbus(resultJSON.transaction_code);
-
-    for (let i = 0; i < resultJSON.slaveRegisters.length; i++) {
-      console.log(resultJSON.slaveRegisters[i]);
-      afisare_valoare_modbus("registru", parseInt(document.getElementById("firstReg").value) + i, resultJSON.slaveRegisters[i]);
-    }
-
-  } else {
-    alert("HTTP-Error: " + response.status);
-  }
-
-}
-
-// todo: vezi daca mai e necesara, sau cauta o metoda noua
-function update_startAdressBit() {
-  // functie utilizata pentru a actualiza valoarea de start pentru multiple reads/writes
-  // functia preia valoarea de start adress de la celalalt form
-  document.getElementById("startAdressBitCount").value = document.getElementById("startAdressBit").value
-}
-function update_startAdressCoil() {
-  document.getElementById("startAdressCoilCount").value = document.getElementById("startAdressCoil").value
-}
-
+// functions for page dinamics
 
 /* Create buttons to open specific tab content. 
 All <div> elements with class="tabcontent" are hidden by default (with CSS & JS). 
@@ -153,9 +24,9 @@ function default_open() {
   document.getElementById("defaultOpen").click();
 }
 
+// functions for page actions
 
-function verificare_mesaj() {
-  // verificare continut mesaj
+function startup() {  // things that needs to be set at startup
 
   // block the default behavior (refresh) of the buttons 
   document.getElementById("button_readHolding").addEventListener("click", function (event) {
@@ -190,3 +61,120 @@ function verificare_mesaj() {
 
 }
 
+function timestamp() {  // get timestamp value
+
+  let currentDate = new Date();
+  let time = currentDate.getHours() + ":" + currentDate.getMinutes() + ":" + currentDate.getSeconds();
+  return time;
+}
+
+function update_consola(item_id, item_value) {  // print in console the action
+
+  document.getElementById("consola").value += timestamp() + " ---> " + item_id + " = " + item_value + "\n";
+  document.getElementById("consola").scrollTop = document.getElementById("consola").scrollHeight; //autoscroll
+}
+// todo change name
+function afisare_raspuns_modbus(parametru) {    // print cod succes sau eroare
+  // parametru values are from modbus library error handling
+
+  let text_raspuns_cerere;
+
+  switch (parametru) {
+    case 0:
+      text_raspuns_cerere = "Transaction successful";
+      break;
+
+    case 228:
+      text_raspuns_cerere = "Response timeout expired";
+      break;
+
+    case 2:
+      text_raspuns_cerere = "Output Address not in Range";
+      break;
+
+    case 3:
+      text_raspuns_cerere = "Output Value not in Range";
+      break;
+
+    case 4:
+      text_raspuns_cerere = "Slave or Master Device Fails to process request";
+      break;
+  }
+
+  document.getElementById("consola").value += timestamp() + " DONE: " + text_raspuns_cerere + "\n";
+  document.getElementById("consola").scrollTop = document.getElementById("consola").scrollHeight; //autoscroll
+
+}
+// todo change name
+function afisare_valoare_modbus(item_type, item_number, item_value) {   // print in console the modbus response value 
+  // item_type  = coil sau registru (register)
+  // item_number = register number 
+  // item_value = actual register value
+
+  document.getElementById("consola").value += timestamp() + " ---> " + "Valoare " + item_type + " " + item_number + " : " + item_value + "\n";
+  document.getElementById("consola").scrollTop = document.getElementById("consola").scrollHeight; //autoscroll
+}
+
+async function fetchCoilsJSON() {   // trimitere cerere catre backend pentru citirea de coils
+
+  let startAdress = document.getElementById("startAdress").value;
+  let coilCount = document.getElementById("coilCount").value;
+
+  document.getElementById("consola").value += timestamp() + " INIT: Read " + coilCount + " coils starting from: " + startAdress + "\n";
+
+  //readCoils?startAdress=0&coilCount=1;
+  let url = "/readCoils?startAdress=" + startAdress + "&coilCount=" + coilCount;
+  let response = await fetch(url);
+
+  if (response.ok) { // if HTTP-status is 200-299
+
+    let resultJSON = await response.json();
+
+    afisare_raspuns_modbus(resultJSON.transaction_code);
+
+    for (let i = 0; i < resultJSON.slaveCoils.length; i++) {
+      console.log(resultJSON.slaveCoils[i]);
+
+      if (resultJSON.slaveCoils[i]) { // modify from true/false to modbus specific on/off
+        resultJSON.slaveCoils[i] = "on";
+      }
+      else resultJSON.slaveCoils[i] = "off";
+
+      afisare_valoare_modbus("coil", parseInt(startAdress) + i, resultJSON.slaveCoils[i]);
+    }
+
+  } else {
+    alert("HTTP-Error: " + response.status);
+  }
+
+}
+
+async function fetchRegistriJSON() {    // trimitere cerere catre backend pentru citirea de holding registers
+
+  let firstReg = document.getElementById("firstReg").value;
+  let regCount = document.getElementById("regCount").value;
+
+  document.getElementById("consola").value += timestamp() + " INIT: Read " + regCount + " holding registers starting from: " + firstReg + "\n";
+
+  //let url = "/readHolding?firstReg=0&regCount=2";
+  let url = "/readHolding?firstReg=" + firstReg + "&regCount=" + regCount;
+  let response = await fetch(url);
+
+  if (response.ok) { // if HTTP-status is 200-299
+
+    let resultJSON = await response.json();
+    console.log(resultJSON);
+    console.log(typeof resultJSON.transaction_code);
+
+    afisare_raspuns_modbus(resultJSON.transaction_code);
+
+    for (let i = 0; i < resultJSON.slaveRegisters.length; i++) {
+      console.log(resultJSON.slaveRegisters[i]);
+      afisare_valoare_modbus("registru", parseInt(firstReg) + i, resultJSON.slaveRegisters[i]);
+    }
+
+  } else {
+    alert("HTTP-Error: " + response.status);
+  }
+
+}
