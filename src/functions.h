@@ -71,11 +71,11 @@ void server_readHolding(); // process the readHolding function tab request
 
 void wifi_start()
 {
-    // const char *ssid = "HUAWEI-1AN1IZ";
-    // const char *password = "Huawei12345";
+    const char *ssid = "HUAWEI-1AN1IZ";
+    const char *password = "Huawei12345";
 
-    const char *ssid = "Mihai.Str";
-    const char *password = "12345678";
+    // const char *ssid = "Mihai.Str";
+    // const char *password = "12345678";
 
     WiFi.begin(ssid, password);
     Serial.println("");
