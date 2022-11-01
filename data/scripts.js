@@ -182,7 +182,7 @@ async function fetchDiscreteJSON() {   // trimitere cerere catre backend pentru 
       }
       else resultJSON.slaveDiscrete[i] = "off";
 
-      afisare_valoare_modbus("discrete input", parseInt(startAddressCoils) + i, resultJSON.slaveCoils[i]);
+      afisare_valoare_modbus("discrete input", parseInt(startAddressCoils) + i, resultJSON.slaveDiscrete[i]);
     }
 
   } else {
@@ -240,9 +240,9 @@ async function fetchInputJSON() {    // trimitere cerere catre backend pentru ci
 
     afisare_raspuns_modbus(resultJSON.transaction_code);
 
-    for (let i = 0; i < resultJSON.slaveHolding.length; i++) {
-      console.log(resultJSON.slaveHolding[i]);
-      afisare_valoare_modbus("registru", parseInt(startAddressReg) + i, resultJSON.slaveHolding[i]);
+    for (let i = 0; i < resultJSON.slaveInput.length; i++) {
+      console.log(resultJSON.slaveInput[i]);
+      afisare_valoare_modbus("registru", parseInt(startAddressReg) + i, resultJSON.slaveInput[i]);
     }
 
   } else {
