@@ -16,7 +16,9 @@ void setup()
   modbus_start();
 
   server_readCoils();
+  server_readDiscrete();
   server_readHolding();
+  server_readInput();
 }
 
 void loop()

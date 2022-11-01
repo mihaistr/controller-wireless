@@ -142,16 +142,20 @@
                 <form>
                     <!-- <form action="/readCoils" method="get"> -->
                     <div class="grid-container">
-                        <div class="grid-item item1"><label>Start Address</label></div>                   
-                        <div class="grid-item item2"><input type="number" id="startAddressCoils" name="startAddressCoils"
-                                value="0" min="0" max="65535" onclick="update_consola('Start Address', this.value)"><br>
+                        <div class="grid-item item1"><label>Start Address</label></div>
+                        <div class="grid-item item2"><input type="number" id="startAddressCoils"
+                                name="startAddressCoils" value="0" min="0" max="65535"
+                                onclick="update_consola('Start Address', this.value)"><br>
                         </div>
                         <div class="grid-item item3"><label>Coil Count</label></div>
-                        <div class="grid-item item4"><input type="number" id="coilCount" name="coilCount"
-                                value="1" min="0" max="255" onclick="update_consola('Coil Count', this.value)"><br>
+                        <div class="grid-item item4"><input type="number" id="coilCount" name="coilCount" value="1"
+                                min="0" max="255" onclick="update_consola('Coil Count', this.value)"><br>
                         </div>
-                        <div class="grid-item item5"><button id="button_readCoils" onclick="fetchCoilsJSON()"> Read
-                                Coils </button>
+                        <div class="grid-item item5">
+                            <button id="button_readCoils" onclick="fetchCoilsJSON()"> Read Coils </button>
+
+                            <button id="button_readDiscrete" onclick="fetchDiscreteJSON()"> Read Discrete Inputs
+                            </button>
                         </div>
                     </div>
                 </form><br>
@@ -167,15 +171,17 @@
                     <!-- <form action="/readHolding" method="get"> -->
                     <div class="grid-container">
                         <div class="grid-item item1"><label> Start Adress </label></div>
-                        <div class="grid-item item2"><input type="number" id="startAddressReg" name="startAddressReg" value="0"
-                                min="0" max="65535" onclick="update_consola('First Register', this.value)"><br></div>
+                        <div class="grid-item item2"><input type="number" id="startAddressReg" name="startAddressReg"
+                                value="0" min="0" max="65535"
+                                onclick="update_consola('First Register', this.value)"><br></div>
                         <div class="grid-item item3"><label> Register Count </label></div>
                         <div class="grid-item item4">
                             <input type="number" id="regCount" name="regCount" value="2" min="0" max="100"
                                 onclick="update_consola('Register Count', this.value)"><br>
                         </div>
-                        <div class="grid-item item5"><button id="button_readHolding" onclick="fetchRegistriJSON()"> Read
-                                Holding Register</button>
+                        <div class="grid-item item5">
+                            <button id="button_readHolding" onclick="fetchHoldingJSON()"> Read Holding Registers</button>
+                            <button id="button_readInput" onclick="fetchInputJSON()"> Read Input Registers</button>
                         </div>
                     </div>
                 </form><br>

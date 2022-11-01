@@ -21,7 +21,7 @@ AsyncWebServer server(80);
 AsyncEventSource events("/events");
 
 StaticJsonDocument<500> json_doc; // JSON file object
-const int analogInPin = A0; // ESP8266 Analog Pin ADC0 = A0
+const int analogInPin = A0;       // ESP8266 Analog Pin ADC0 = A0
 
 // parameteri declarati ca variabile globale
 unsigned long lastTime = 0;
@@ -51,8 +51,11 @@ void server_start(); // start the web server ierface
 
 void server_settings(); // process the Settings tab requests
 
-void send_modbus_readCoil(uint16_t startAddressCoils, uint16_t coilCount); // lisen to modbus server response and process response
-void send_modbus_readHolding(uint16_t startAddressReg, uint16_t regCount);
+//send the request to modbus slave, lisen, process response
+void send_modbus_readCoil(uint16_t startAddressCoils, uint16_t coilCount); // function code 01
+void send_modbus_readDiscrete(uint16_t startAddressCoils, uint16_t coilCount); // function code 02
+void send_modbus_readHolding(uint16_t startAddressReg, uint16_t regCount); // function code 03
+void send_modbus_readInput(uint16_t startAddressReg, uint16_t regCount); // function code 04 ??? verifica daca is corecte
 
 void notFound(AsyncWebServerRequest *request); // in case the web page requested is not found
 
@@ -65,8 +68,10 @@ bool cb(Modbus::ResultCode event, uint16_t transactionId, void *data); // print 
 String processor(const String &var); // convert values from int to string to be sent to web interface
                                      // where only strings are accepted
 
-void server_readCoils();   // process the readCoils function tab request
-void server_readHolding(); // process the readHolding function tab request
+void server_readCoils();    // process the readCoils function tab request
+void server_readDiscrete(); // process the readDiscrete function tab request
+void server_readHolding();  // process the readHolding function tab request
+void server_readInput();    // process the readInput function tab request
 
 void wifi_start()
 {
@@ -160,6 +165,21 @@ void server_readCoils()
         request->send(response); });
 }
 
+void server_readDiscrete()
+{
+    // readDiscrete?startAddressCoils=0&coilCount=1;
+    server.on("/readDiscrete", HTTP_GET, [](AsyncWebServerRequest *request)
+              {
+              startAddressCoils = request->getParam(0)->value().toInt();
+              coilCount = request->getParam(1)->value().toInt();
+            
+              send_modbus_readDiscrete(startAddressCoils,coilCount);
+
+        AsyncResponseStream *response = request->beginResponseStream("application/json");
+        serializeJson(json_doc, *response);
+        request->send(response); });
+}
+
 void server_readHolding()
 {
     // readHolding?startAddressReg=2&regCount=4
@@ -169,6 +189,22 @@ void server_readHolding()
         regCount = request->getParam(1)->value().toInt();
 
         send_modbus_readHolding(startAddressReg, regCount);
+
+        // todo: documentatie JSON
+        AsyncResponseStream *response = request->beginResponseStream("application/json");
+        serializeJson(json_doc, *response);
+        request->send(response); });
+}
+
+void server_readInput()
+{
+    // /readInput?startAddressReg=0&regCount=2
+    server.on("/readInput", HTTP_GET, [](AsyncWebServerRequest *request)
+              {
+        startAddressReg = request->getParam(0)->value().toInt();
+        regCount = request->getParam(1)->value().toInt();
+
+        send_modbus_readInput(startAddressReg, regCount);
 
         // todo: documentatie JSON
         AsyncResponseStream *response = request->beginResponseStream("application/json");
@@ -273,11 +309,44 @@ void send_modbus_readCoil(uint16_t startAddressCoils, uint16_t coilCount)
     }
 }
 
+void send_modbus_readDiscrete(uint16_t startAddressCoils, uint16_t coilCount)
+{
+    bool discrete[coilCount];
+
+    if (!mb.slave())
+    { // send modbus function code $02
+        mb.readIsts(serverAddress, startAddressReg, discrete, coilCount, cb);
+
+        while (mb.slave())
+        { // Check if transaction is active
+            mb.task();
+            delay(10);
+        }
+
+        if (transaction_code != 0)
+        { // sent to frontend the modbus response value
+            json_doc["transaction_code"] = transaction_code;
+            json_doc["slaveCoils"] = NULL;
+        }
+        else
+        {
+            json_doc["transaction_code"] = transaction_code;
+            // Create the array that stores the values
+            JsonArray valoareRegistrii = json_doc.createNestedArray("slaveDiscrete");
+            for (int i = 0; i < coilCount; i++)
+            {
+                // Add the value at the end of the array
+                valoareRegistrii.add(discrete[i]);
+            }
+        }
+    }
+}
+
 void send_modbus_readHolding(uint16_t startAddressReg, uint16_t regCount)
 {
     uint16_t res[regCount];
     if (!mb.slave())
-    {                                                           // send modbus function code $03
+    {                                                                   // send modbus function code $03
         mb.readHreg(serverAddress, startAddressReg, res, regCount, cb); // Send Read Hreg from Modbus Server
 
         // Check if no transaction in progress
@@ -293,13 +362,46 @@ void send_modbus_readHolding(uint16_t startAddressReg, uint16_t regCount)
         if (transaction_code != 0)
         { // sent to frontend the modbus response value
             json_doc["transaction_code"] = transaction_code;
-            json_doc["slaveRegisters"] = NULL;
+            json_doc["slaveHolding"] = NULL;
         }
         else
         {
             json_doc["transaction_code"] = transaction_code;
             // Create the array that stores the values
-            JsonArray valoareRegistrii = json_doc.createNestedArray("slaveRegisters");
+            JsonArray valoareRegistrii = json_doc.createNestedArray("slaveHolding");
+            for (int i = 0; i < regCount; i++)
+            {
+                // Add the value at the end of the array
+                valoareRegistrii.add(res[i]);
+            }
+        }
+    }
+}
+
+void send_modbus_readInput(uint16_t startAddressReg, uint16_t regCount)
+{
+    uint16_t res[regCount];
+    if (!mb.slave())
+    {                                                                   // send modbus function code $04???
+        mb.readIreg(serverAddress, startAddressReg, res, regCount, cb); // Send Read IReg from Modbus Server
+
+        // Check if no transaction in progress
+        while (mb.slave())
+        { // Check if transaction is active
+            mb.task();
+            delay(10);
+        }
+
+        if (transaction_code != 0)
+        { // sent to frontend the modbus response value
+            json_doc["transaction_code"] = transaction_code;
+            json_doc["slaveHolding"] = NULL;
+        }
+        else
+        {
+            json_doc["transaction_code"] = transaction_code;
+            // Create the array that stores the values
+            JsonArray valoareRegistrii = json_doc.createNestedArray("slaveInput");
             for (int i = 0; i < regCount; i++)
             {
                 // Add the value at the end of the array
