@@ -117,13 +117,13 @@ function afisare_valoare_modbus(item_type, item_number, item_value) {   // print
 
 async function fetchCoilsJSON() {   // trimitere cerere catre backend pentru citirea de coils
 
-  let startAdress = document.getElementById("startAdress").value;
+  let startAddressCoils = document.getElementById("startAddressCoils").value;
   let coilCount = document.getElementById("coilCount").value;
 
-  document.getElementById("consola").value += timestamp() + " INIT: Read " + coilCount + " coils starting from: " + startAdress + "\n";
+  document.getElementById("consola").value += timestamp() + " INIT: Read " + coilCount + " coils starting from: " + startAddressCoils + "\n";
 
-  //readCoils?startAdress=0&coilCount=1;
-  let url = "/readCoils?startAdress=" + startAdress + "&coilCount=" + coilCount;
+  //readCoils?startAddressCoils=0&coilCount=1;
+  let url = "/readCoils?startAddressCoils=" + startAddressCoils + "&coilCount=" + coilCount;
   let response = await fetch(url);
 
   if (response.ok) { // if HTTP-status is 200-299
@@ -140,7 +140,7 @@ async function fetchCoilsJSON() {   // trimitere cerere catre backend pentru cit
       }
       else resultJSON.slaveCoils[i] = "off";
 
-      afisare_valoare_modbus("coil", parseInt(startAdress) + i, resultJSON.slaveCoils[i]);
+      afisare_valoare_modbus("coil", parseInt(startAddressCoils) + i, resultJSON.slaveCoils[i]);
     }
 
   } else {
@@ -151,13 +151,13 @@ async function fetchCoilsJSON() {   // trimitere cerere catre backend pentru cit
 
 async function fetchRegistriJSON() {    // trimitere cerere catre backend pentru citirea de holding registers
 
-  let firstReg = document.getElementById("firstReg").value;
+  let startAddressReg = document.getElementById("startAddressReg").value;
   let regCount = document.getElementById("regCount").value;
 
-  document.getElementById("consola").value += timestamp() + " INIT: Read " + regCount + " holding registers starting from: " + firstReg + "\n";
+  document.getElementById("consola").value += timestamp() + " INIT: Read " + regCount + " holding registers starting from: " + startAddressReg + "\n";
 
-  //let url = "/readHolding?firstReg=0&regCount=2";
-  let url = "/readHolding?firstReg=" + firstReg + "&regCount=" + regCount;
+  //let url = "/readHolding?startAddressReg=0&regCount=2";
+  let url = "/readHolding?startAddressReg=" + startAddressReg + "&regCount=" + regCount;
   let response = await fetch(url);
 
   if (response.ok) { // if HTTP-status is 200-299
@@ -170,7 +170,7 @@ async function fetchRegistriJSON() {    // trimitere cerere catre backend pentru
 
     for (let i = 0; i < resultJSON.slaveRegisters.length; i++) {
       console.log(resultJSON.slaveRegisters[i]);
-      afisare_valoare_modbus("registru", parseInt(firstReg) + i, resultJSON.slaveRegisters[i]);
+      afisare_valoare_modbus("registru", parseInt(startAddressReg) + i, resultJSON.slaveRegisters[i]);
     }
 
   } else {

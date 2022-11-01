@@ -21,7 +21,6 @@ AsyncWebServer server(80);
 AsyncEventSource events("/events");
 
 StaticJsonDocument<500> json_doc; // JSON file object
-
 const int analogInPin = A0; // ESP8266 Analog Pin ADC0 = A0
 
 // parameteri declarati ca variabile globale
@@ -34,10 +33,10 @@ uint16_t coilCount;          // for future development
 char parity;                 // for future development
 
 uint16_t baud_rate = 9600;
-uint16_t serverAdress = 1;
-uint16_t startAdress = 1;
+uint16_t serverAddress = 1;
+uint16_t startAddressCoils = 1;
 uint16_t bitCount = 1;
-uint16_t firstReg = 0;
+uint16_t startAddressReg = 0;
 uint16_t regCount = 1;
 
 float voltage = 0; // value read
@@ -52,8 +51,8 @@ void server_start(); // start the web server ierface
 
 void server_settings(); // process the Settings tab requests
 
-void send_modbus_readCoil(uint16_t startAdress, uint16_t coilCount); // lisen to modbus server response and process response
-void send_modbus_readHolding(uint16_t firstReg, uint16_t regCount);
+void send_modbus_readCoil(uint16_t startAddressCoils, uint16_t coilCount); // lisen to modbus server response and process response
+void send_modbus_readHolding(uint16_t startAddressReg, uint16_t regCount);
 
 void notFound(AsyncWebServerRequest *request); // in case the web page requested is not found
 
@@ -121,19 +120,19 @@ void server_start()
               { request->send(LittleFS, "/scripts.js"); });
 }
 
-// settings?serverAdress=1&baud_rate=9600&databits=8&parity=even&stopBits=1
+// settings?serverAddress=1&baud_rate=9600&databits=8&parity=even&stopBits=1
 void server_settings()
 {
     server.on("/settings", HTTP_GET, [](AsyncWebServerRequest *request)
               {   
                 // atribuire valorile parametrilor 
-                serverAdress = request->getParam(0)->value().toInt();
+                serverAddress = request->getParam(0)->value().toInt();
                 baud_rate = request->getParam(1)->value().toInt();
                 databits = request->getParam(2)->value().toInt();
                 stopBits = request->getParam(4)->value().toInt();
 
-                Serial.println("serverAdress:"); // print in serial command for debug reasons
-                Serial.println(serverAdress);
+                Serial.println("serverAddress:"); // print in serial command for debug reasons
+                Serial.println(serverAddress);
                 Serial.println("baudrate:");
                 Serial.println(baud_rate);
                                              
@@ -143,18 +142,18 @@ void server_settings()
 
 void server_readCoils()
 {
-    // readCoils?startAdress=0&coilCount=1
+    // readCoils?startAddressCoils=0&coilCount=1
     server.on("/readCoils", HTTP_GET, [](AsyncWebServerRequest *request)
               {
-              startAdress = request->getParam(0)->value().toInt();
+              startAddressCoils = request->getParam(0)->value().toInt();
               coilCount = request->getParam(1)->value().toInt();
             
-              Serial.println("startAdress"); // print in serial command for debug reasons
-              Serial.println(startAdress);
+              Serial.println("startAddressCoils"); // print in serial command for debug reasons
+              Serial.println(startAddressCoils);
               Serial.println("coilCount");
               Serial.println(coilCount);
 
-              send_modbus_readCoil(startAdress,coilCount);
+              send_modbus_readCoil(startAddressCoils,coilCount);
 
         AsyncResponseStream *response = request->beginResponseStream("application/json");
         serializeJson(json_doc, *response);
@@ -163,13 +162,13 @@ void server_readCoils()
 
 void server_readHolding()
 {
-    // readHolding?firstReg=2&regCount=4
+    // readHolding?startAddressReg=2&regCount=4
     server.on("/readHolding", HTTP_GET, [](AsyncWebServerRequest *request)
               {
-        firstReg = request->getParam(0)->value().toInt();
+        startAddressReg = request->getParam(0)->value().toInt();
         regCount = request->getParam(1)->value().toInt();
 
-        send_modbus_readHolding(firstReg, regCount);
+        send_modbus_readHolding(startAddressReg, regCount);
 
         // todo: documentatie JSON
         AsyncResponseStream *response = request->beginResponseStream("application/json");
@@ -238,13 +237,13 @@ bool cb(Modbus::ResultCode event, uint16_t transactionId, void *data)
     return true;
 }
 
-void send_modbus_readCoil(uint16_t startAdress, uint16_t coilCount)
+void send_modbus_readCoil(uint16_t startAddressCoils, uint16_t coilCount)
 {
     bool coils[coilCount];
 
     if (!mb.slave())
     { // send modbus function code $01
-        mb.readCoil(serverAdress, firstReg, coils, coilCount, cb);
+        mb.readCoil(serverAddress, startAddressReg, coils, coilCount, cb);
 
         while (mb.slave())
         { // Check if transaction is active
@@ -274,12 +273,12 @@ void send_modbus_readCoil(uint16_t startAdress, uint16_t coilCount)
     }
 }
 
-void send_modbus_readHolding(uint16_t firstReg, uint16_t regCount)
+void send_modbus_readHolding(uint16_t startAddressReg, uint16_t regCount)
 {
     uint16_t res[regCount];
     if (!mb.slave())
     {                                                           // send modbus function code $03
-        mb.readHreg(serverAdress, firstReg, res, regCount, cb); // Send Read Hreg from Modbus Server
+        mb.readHreg(serverAddress, startAddressReg, res, regCount, cb); // Send Read Hreg from Modbus Server
 
         // Check if no transaction in progress
         while (mb.slave())

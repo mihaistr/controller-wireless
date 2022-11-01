@@ -138,12 +138,12 @@
         <div class="row_function">
 
             <div class="column_function">
-                <h2>Discrete Read</h2>
+                <h2>Discrete Access</h2>
                 <form>
                     <!-- <form action="/readCoils" method="get"> -->
                     <div class="grid-container">
                         <div class="grid-item item1"><label>Start Address</label></div>                   
-                        <div class="grid-item item2"><input type="number" id="startAdress" name="startAdress"
+                        <div class="grid-item item2"><input type="number" id="startAddressCoils" name="startAddressCoils"
                                 value="0" min="0" max="65535" onclick="update_consola('Start Address', this.value)"><br>
                         </div>
                         <div class="grid-item item3"><label>Coil Count</label></div>
@@ -162,14 +162,14 @@
 
         <div class="row_function">
             <div class="column_function">
-                <h2>Register Read</h2>
+                <h2>Register Access</h2>
                 <form>
                     <!-- <form action="/readHolding" method="get"> -->
                     <div class="grid-container">
-                        <div class="grid-item item1"><label> First Register </label></div>
-                        <div class="grid-item item2"><input type="number" id="firstReg" name="firstReg" value="0"
+                        <div class="grid-item item1"><label> Start Adress </label></div>
+                        <div class="grid-item item2"><input type="number" id="startAddressReg" name="startAddressReg" value="0"
                                 min="0" max="65535" onclick="update_consola('First Register', this.value)"><br></div>
-                        <div class="grid-item item3"><label>Register Count</label></div>
+                        <div class="grid-item item3"><label> Register Count </label></div>
                         <div class="grid-item item4">
                             <input type="number" id="regCount" name="regCount" value="2" min="0" max="100"
                                 onclick="update_consola('Register Count', this.value)"><br>
@@ -183,15 +183,6 @@
         </div>
     </div>
     <!-- Function tab end -->
-
-    <div>
-        <!-- store the modbus response value -->
-        <input type="hidden" id="transaction_code" name="transaction_code" value=%TRANSACTION_CODE%>
-    </div>
-
-    <div>
-        <input type="hidden" id="mb_response" name="mb_response" value=%MODBUS_RESPONSE%>
-    </div>
 
     <div><br>
         <!-- text console to inform user about the actions taken -->
