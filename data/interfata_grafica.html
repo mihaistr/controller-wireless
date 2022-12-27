@@ -135,64 +135,101 @@
     <!-- Tab Functions -->
 
     <div id="tab_functions" class="tabcontent">
-        <div class="row_function">
 
-            <div class="column_function">
-                <h2>Discrete Access</h2>
-                <form>
-                    <!-- <form action="/readCoils" method="get"> -->
-                    <div class="grid-container">
-                        <div class="grid-item item1"><label>Start Address</label></div>
-                        <div class="grid-item item2"><input type="number" id="startAddressCoils"
-                                name="startAddressCoils" value="0" min="0" max="65535"
-                                onclick="update_consola('Start Address', this.value)"><br>
-                        </div>
-                        <div class="grid-item item3"><label>Coil Count</label></div>
-                        <div class="grid-item item4"><input type="number" id="coilCount" name="coilCount" value="1"
-                                min="0" max="255" onclick="update_consola('Coil Count', this.value)"><br>
-                        </div>
-                        <div class="grid-item item5">
-                            <button id="button_readCoils" onclick="fetchCoilsJSON()"> Read Coils </button>
-
-                            <button id="button_readDiscrete" onclick="fetchDiscreteJSON()"> Read Discrete Inputs
-                            </button>
+        <div class="divTable DiscreteAccess">
+            <div class="divTableBody">
+                <h2>Discrete Read</h2>
+                <div class="divTableRow">
+                    <div class="divTableCell">
+                        <div> Start Address <input type="number" id="startAddressCoils" name="startAddressCoils"
+                                value="0" min="0" max="65535" onclick="update_consola('Start Address', this.value)">
                         </div>
                     </div>
-                </form><br>
-
-            </div>
-
-        </div>
-
-        <div class="row_function">
-            <div class="column_function">
-                <h2>Register Access</h2>
-                <form>
-                    <!-- <form action="/readHolding" method="get"> -->
-                    <div class="grid-container">
-                        <div class="grid-item item1"><label> Start Adress </label></div>
-                        <div class="grid-item item2"><input type="number" id="startAddressReg" name="startAddressReg"
-                                value="0" min="0" max="65535"
-                                onclick="update_consola('First Register', this.value)"><br></div>
-                        <div class="grid-item item3"><label> Register Count </label></div>
-                        <div class="grid-item item4">
-                            <input type="number" id="regCount" name="regCount" value="2" min="0" max="100"
-                                onclick="update_consola('Register Count', this.value)"><br>
-                        </div>
-                        <div class="grid-item item5">
-                            <button id="button_readHolding" onclick="fetchHoldingJSON()"> Read Holding Registers</button>
-                            <button id="button_readInput" onclick="fetchInputJSON()"> Read Input Registers</button>
+                    <div class="divTableCell">
+                        <div> Coil Count <input type="number" id="coilCount" name="coilCount" value="1" min="0"
+                                max="255" onclick="update_consola('Coil Count', this.value)">
                         </div>
                     </div>
-                </form><br>
+                </div>
+
+                <div class="divTableRow">
+                    <div class="divTableCell">
+                        <button class = "button_functie" id="button_readCoils" onclick="fetchCoilsJSON()"> Read Coils</button>
+                    </div>
+                    <div class="divTableCell">
+                        <button class = "button_functie" id="button_readDiscrete" onclick="fetchDiscreteJSON()"> Read Discrete Inputs
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
+
+        <!-- rand liber  -->
+        <br> 
+
+        <div class="divTable DiscreteAccess">
+            <div class="divTableBody">
+                <h2> Register Read </h2>
+                <div class="divTableRow">
+                    <div class="divTableCell">
+                        <div> Start Adress <input type="number" id="startAddressReg" name="startAddressReg" value="0"
+                                min="0" max="65535" onclick="update_consola('First Register', this.value)"></div>
+                    </div>
+                    <div class="divTableCell">
+                        <div> Register Count <input type="number" id="regCount" name="regCount" value="2" min="0"
+                                max="100" onclick="update_consola('Register Count', this.value)">
+                        </div>
+                    </div>
+                </div>
+                <div class="divTableRow">
+                    <div class="divTableCell">
+                        <button class = "button_functie" id="button_readHolding" onclick="fetchHoldingJSON()"> Read Holding Registers</button>
+                    </div>
+                    <div class="divTableCell">
+                        <button class = "button_functie" id="button_readInput" onclick="fetchInputJSON()"> Read Input Registers</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
     <!-- Function tab end -->
 
     <div><br>
         <!-- text console to inform user about the actions taken -->
         <textarea id="consola" name="consola" rows="15" cols="55" readonly></textarea>
+    </div>
+
+
+
+    <div class="divTable DiscreteAccess">
+        <div class="divTableBody">
+            <div class="divTableRow">
+                <div class="divTableCell">
+
+                    cell1_1
+
+                </div>
+                <div class="divTableCell">
+
+                    cell2_1
+
+                </div>
+            </div>
+
+            <div class="divTableRow">
+                <div class="divTableCell">
+
+                    cell1_2
+
+                </div>
+                <div class="divTableCell">
+
+                    cell2_2
+
+                </div>
+            </div>
+        </div>
     </div>
 
 

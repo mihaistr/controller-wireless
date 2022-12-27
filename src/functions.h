@@ -13,7 +13,7 @@
 #ifndef FUNCTIONS_H_
 #define FUNCTIONS_H_
 
-// receivePin, transmitPin, inverse_logic, bufSize, isrBufSize
+// receivePin = RO , transmitPin = DI , inverse_logic, bufSize, isrBufSize
 SoftwareSerial S(D1, D4);
 ModbusRTU mb;
 
@@ -79,7 +79,7 @@ void wifi_start()
     const char *password = "Huawei12345";
 
     // const char *ssid = "Mihai.Str";
-    // const char *password = "12345678";
+    // const char *password = "";
 
     WiFi.begin(ssid, password);
     Serial.println("");
@@ -422,3 +422,4 @@ String processor(const String &var)
 
     return String();
 }
+

@@ -105,7 +105,6 @@ h3 {
 
 button {
   background-color: #ccc;
-  float: left;
   border: none;
   cursor: pointer;
   padding: 10px 10px;
@@ -113,38 +112,30 @@ button {
   font-size: 14px;
 }
 
-.grid-container {
-  display: grid;
-  gap: 10px;
-  padding: 5px;
+.button_functie {
+  background-color: #ccc;
+  border: none;
+  cursor: pointer;
+  padding: 10px 10px;
+  transition: 0.3s;
+  font-size: 14px;
+  width: 100%;
 }
 
-.grid-item {
-  text-align: left;
-  font-size: 16px;
-}
 
-.item1 {
-  grid-column: 1 / span 1;
-  grid-row: 1;
+div.DiscreteAccess {
+  border: 1px solid #ccc;
+  text-align: center;
 }
-
-.item2 {
-  grid-column: 2 /span 1;
-  grid-row: 1;
+.divTable.DiscreteAccess .divTableCell, .divTable.DiscreteAccess .divTableHead {
+  
+  padding: 10px 5px;
 }
-
-.item3 {
-  grid-column: 1 / span 1;
-  grid-row: 2;
-}
-
-.item4 {
-  grid-column: 2 / span 1;
-  grid-row: 2;
-}
-
-.item5 {
-  grid-column: 1 / span 2;
-  grid-row: 3;
-}
+/* DivTable.com */
+.divTable{ display: table; }
+.divTableRow { display: table-row; }
+.divTableHeading { display: table-header-group;}
+.divTableCell, .divTableHead { display: table-cell;}
+.divTableHeading { display: table-header-group;}
+.divTableFoot { display: table-footer-group;}
+.divTableBody { display: table-row-group;}

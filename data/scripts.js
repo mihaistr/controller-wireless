@@ -183,6 +183,7 @@ async function fetchDiscreteJSON() {   // trimitere cerere catre backend pentru 
       else resultJSON.slaveDiscrete[i] = "off";
 
       afisare_valoare_modbus("discrete input", parseInt(startAddressCoils) + i, resultJSON.slaveDiscrete[i]);
+      
     }
 
   } else {
