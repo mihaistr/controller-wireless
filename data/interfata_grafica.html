@@ -38,7 +38,9 @@
     <!-- Tab links -->
     <div class="tab">
         <button class="tablinks" onclick="openTab(event, 'tab_settings')">Settings</button>
-        <button class="tablinks" onclick="openTab(event, 'tab_functions')" id="defaultOpen">Functions</button>
+        <button class="tablinks" onclick="openTab(event, 'tab_discreteAccess')" id="defaultOpen">Discrete
+            Access</button>
+        <button class="tablinks" onclick="openTab(event, 'tab_registerAccess')">Register Access</button>
     </div>
     <!-- Tab content -->
     <form action="/settings" method="get">
@@ -134,7 +136,7 @@
 
     <!-- Tab Functions -->
 
-    <div id="tab_functions" class="tabcontent">
+    <div id="tab_discreteAccess" class="tabcontent">
 
         <div class="divTable DiscreteAccess">
             <div class="divTableBody">
@@ -154,10 +156,12 @@
 
                 <div class="divTableRow">
                     <div class="divTableCell">
-                        <button class = "button_functie" id="button_readCoils" onclick="fetchCoilsValue()"> Read Coils</button>
+                        <button class="button_functie" id="button_readCoils" onclick="fetchCoilsValue()"> Read
+                            Coils</button>
                     </div>
                     <div class="divTableCell">
-                        <button class = "button_functie" id="button_readDiscrete" onclick="fetchDiscreteValue()"> Read Discrete Inputs
+                        <button class="button_functie" id="button_readDiscrete" onclick="fetchDiscreteValue()"> Read
+                            Discrete Inputs
                         </button>
                     </div>
                 </div>
@@ -165,15 +169,18 @@
         </div>
 
         <!-- rand liber  -->
-        <br> 
+        <br>
+    </div>
 
+    <div id="tab_registerAccess" class="tabcontent">
         <div class="divTable DiscreteAccess">
             <div class="divTableBody">
                 <h2> Register Read </h2>
                 <div class="divTableRow">
                     <div class="divTableCell">
-                        <div> Start Adress <input type="number" id="startAddressReadRegisters" name="startAddressReadRegisters" value="0"
-                                min="0" max="65535" onclick="update_consola('First Register', this.value)"></div>
+                        <div> Start Adress <input type="number" id="startAddressReadRegisters"
+                                name="startAddressReadRegisters" value="0" min="0" max="65535"
+                                onclick="update_consola('First Register', this.value)"></div>
                     </div>
                     <div class="divTableCell">
                         <div> Register Count <input type="number" id="regCount" name="regCount" value="2" min="0"
@@ -183,10 +190,13 @@
                 </div>
                 <div class="divTableRow">
                     <div class="divTableCell">
-                        <button class = "button_functie" id="button_readHolding" onclick="fetchHoldingValue()"> Read Holding Registers</button>
+                        <button class="button_functie" id="button_readHolding" onclick="fetchHoldingValue()"> Read
+                            Holding
+                            Registers</button>
                     </div>
                     <div class="divTableCell">
-                        <button class = "button_functie" id="button_readInput" onclick="fetchInputValue()"> Read Input Registers</button>
+                        <button class="button_functie" id="button_readInput" onclick="fetchInputValue()"> Read Input
+                            Registers</button>
                     </div>
                 </div>
             </div>
