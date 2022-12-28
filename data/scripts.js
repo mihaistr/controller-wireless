@@ -123,15 +123,15 @@ function afisare_valoare_modbus(item_type, item_number, item_value) {   // print
   document.getElementById("consola").scrollTop = document.getElementById("consola").scrollHeight; //autoscroll
 }
 
-async function fetchCoilsJSON() {   // trimitere cerere catre backend pentru citirea de coils
+async function fetchCoilsValue() {   // trimitere cerere catre backend pentru citirea de coils
 
-  let startAddressCoils = document.getElementById("startAddressCoils").value;
-  let coilCount = document.getElementById("coilCount").value;
+  let startAddressReadCoils = document.getElementById("startAddressReadCoils").value;
+  let coilCountRead = document.getElementById("coilCountRead").value;
 
-  document.getElementById("consola").value += timestamp() + " INIT: Read " + coilCount + " coils starting from: " + startAddressCoils + "\n";
+  document.getElementById("consola").value += timestamp() + " INIT: Read " + coilCountRead + " coils starting from: " + startAddressReadCoils + "\n";
 
-  //readCoils?startAddressCoils=0&coilCount=1;
-  let url = "/readCoils?startAddressCoils=" + startAddressCoils + "&coilCount=" + coilCount;
+  //readCoils?startAddressReadCoils=0&coilCountRead=1;
+  let url = "/readCoils?startAddressReadCoils=" + startAddressReadCoils + "&coilCountRead=" + coilCountRead;
   let response = await fetch(url);
 
   if (response.ok) { // if HTTP-status is 200-299
@@ -148,7 +148,7 @@ async function fetchCoilsJSON() {   // trimitere cerere catre backend pentru cit
       }
       else resultJSON.slaveCoils[i] = "off";
 
-      afisare_valoare_modbus("coil", parseInt(startAddressCoils) + i, resultJSON.slaveCoils[i]);
+      afisare_valoare_modbus("coil", parseInt(startAddressReadCoils) + i, resultJSON.slaveCoils[i]);
     }
 
   } else {
@@ -157,15 +157,15 @@ async function fetchCoilsJSON() {   // trimitere cerere catre backend pentru cit
 
 }
 
-async function fetchDiscreteJSON() {   // trimitere cerere catre backend pentru citirea de dicrete inputs
+async function fetchDiscreteValue() {   // trimitere cerere catre backend pentru citirea de dicrete inputs
 
-  let startAddressCoils = document.getElementById("startAddressCoils").value;
-  let coilCount = document.getElementById("coilCount").value;
+  let startAddressReadCoils = document.getElementById("startAddressReadCoils").value;
+  let coilCountRead = document.getElementById("coilCountRead").value;
 
-  document.getElementById("consola").value += timestamp() + " INIT: Read " + coilCount + " discrete inputs starting from: " + startAddressCoils + "\n";
+  document.getElementById("consola").value += timestamp() + " INIT: Read " + coilCountRead + " discrete inputs starting from: " + startAddressReadCoils + "\n";
 
-  //readDiscrete?startAddressCoils=0&coilCount=1;
-  let url = "/readDiscrete?startAddressCoils=" + startAddressCoils + "&coilCount=" + coilCount;
+  //readDiscrete?startAddressReadCoils=0&coilCountRead=1;
+  let url = "/readDiscrete?startAddressReadCoils=" + startAddressReadCoils + "&coilCountRead=" + coilCountRead;
   let response = await fetch(url);
 
   if (response.ok) { // if HTTP-status is 200-299
@@ -182,7 +182,7 @@ async function fetchDiscreteJSON() {   // trimitere cerere catre backend pentru 
       }
       else resultJSON.slaveDiscrete[i] = "off";
 
-      afisare_valoare_modbus("discrete input", parseInt(startAddressCoils) + i, resultJSON.slaveDiscrete[i]);
+      afisare_valoare_modbus("discrete input", parseInt(startAddressReadCoils) + i, resultJSON.slaveDiscrete[i]);
       
     }
 
@@ -192,15 +192,15 @@ async function fetchDiscreteJSON() {   // trimitere cerere catre backend pentru 
 
 }
 
-async function fetchHoldingJSON() {    // trimitere cerere catre backend pentru citirea de holding registers
+async function fetchHoldingValue() {    // trimitere cerere catre backend pentru citirea de holding registers
 
-  let startAddressReg = document.getElementById("startAddressReg").value;
+  let startAddressReadRegisters = document.getElementById("startAddressReadRegisters").value;
   let regCount = document.getElementById("regCount").value;
 
-  document.getElementById("consola").value += timestamp() + " INIT: Read " + regCount + " holding registers starting from: " + startAddressReg + "\n";
+  document.getElementById("consola").value += timestamp() + " INIT: Read " + regCount + " holding registers starting from: " + startAddressReadRegisters + "\n";
 
-  //readHolding?startAddressReg=0&regCount=2
-  let url = "/readHolding?startAddressReg=" + startAddressReg + "&regCount=" + regCount;
+  //readHolding?startAddressReadRegisters=0&regCount=2
+  let url = "/readHolding?startAddressReadRegisters=" + startAddressReadRegisters + "&regCount=" + regCount;
   let response = await fetch(url);
 
   if (response.ok) { // if HTTP-status is 200-299
@@ -213,7 +213,7 @@ async function fetchHoldingJSON() {    // trimitere cerere catre backend pentru 
 
     for (let i = 0; i < resultJSON.slaveHolding.length; i++) {
       console.log(resultJSON.slaveHolding[i]);
-      afisare_valoare_modbus("registru", parseInt(startAddressReg) + i, resultJSON.slaveHolding[i]);
+      afisare_valoare_modbus("registru", parseInt(startAddressReadRegisters) + i, resultJSON.slaveHolding[i]);
     }
 
   } else {
@@ -222,15 +222,15 @@ async function fetchHoldingJSON() {    // trimitere cerere catre backend pentru 
 
 }
 
-async function fetchInputJSON() {    // trimitere cerere catre backend pentru citirea de input registers
+async function fetchInputValue() {    // trimitere cerere catre backend pentru citirea de input registers
 
-  let startAddressReg = document.getElementById("startAddressReg").value;
+  let startAddressReadRegisters = document.getElementById("startAddressReadRegisters").value;
   let regCount = document.getElementById("regCount").value;
 
-  document.getElementById("consola").value += timestamp() + " INIT: Read " + regCount + " input registers starting from: " + startAddressReg + "\n";
+  document.getElementById("consola").value += timestamp() + " INIT: Read " + regCount + " input registers starting from: " + startAddressReadRegisters + "\n";
 
-  //readInput?startAddressReg=0&regCount=2
-  let url = "/readInput?startAddressReg=" + startAddressReg + "&regCount=" + regCount;
+  //readInput?startAddressReadRegisters=0&regCount=2
+  let url = "/readInput?startAddressReadRegisters=" + startAddressReadRegisters + "&regCount=" + regCount;
   let response = await fetch(url);
 
   if (response.ok) { // if HTTP-status is 200-299
@@ -243,7 +243,7 @@ async function fetchInputJSON() {    // trimitere cerere catre backend pentru ci
 
     for (let i = 0; i < resultJSON.slaveInput.length; i++) {
       console.log(resultJSON.slaveInput[i]);
-      afisare_valoare_modbus("registru", parseInt(startAddressReg) + i, resultJSON.slaveInput[i]);
+      afisare_valoare_modbus("registru", parseInt(startAddressReadRegisters) + i, resultJSON.slaveInput[i]);
     }
 
   } else {

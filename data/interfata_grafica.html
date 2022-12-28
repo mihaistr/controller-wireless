@@ -141,12 +141,12 @@
                 <h2>Discrete Read</h2>
                 <div class="divTableRow">
                     <div class="divTableCell">
-                        <div> Start Address <input type="number" id="startAddressCoils" name="startAddressCoils"
+                        <div> Start Address <input type="number" id="startAddressReadCoils" name="startAddressReadCoils"
                                 value="0" min="0" max="65535" onclick="update_consola('Start Address', this.value)">
                         </div>
                     </div>
                     <div class="divTableCell">
-                        <div> Coil Count <input type="number" id="coilCount" name="coilCount" value="1" min="0"
+                        <div> Coil Count <input type="number" id="coilCountRead" name="coilCountRead" value="1" min="0"
                                 max="255" onclick="update_consola('Coil Count', this.value)">
                         </div>
                     </div>
@@ -154,10 +154,10 @@
 
                 <div class="divTableRow">
                     <div class="divTableCell">
-                        <button class = "button_functie" id="button_readCoils" onclick="fetchCoilsJSON()"> Read Coils</button>
+                        <button class = "button_functie" id="button_readCoils" onclick="fetchCoilsValue()"> Read Coils</button>
                     </div>
                     <div class="divTableCell">
-                        <button class = "button_functie" id="button_readDiscrete" onclick="fetchDiscreteJSON()"> Read Discrete Inputs
+                        <button class = "button_functie" id="button_readDiscrete" onclick="fetchDiscreteValue()"> Read Discrete Inputs
                         </button>
                     </div>
                 </div>
@@ -172,7 +172,7 @@
                 <h2> Register Read </h2>
                 <div class="divTableRow">
                     <div class="divTableCell">
-                        <div> Start Adress <input type="number" id="startAddressReg" name="startAddressReg" value="0"
+                        <div> Start Adress <input type="number" id="startAddressReadRegisters" name="startAddressReadRegisters" value="0"
                                 min="0" max="65535" onclick="update_consola('First Register', this.value)"></div>
                     </div>
                     <div class="divTableCell">
@@ -183,10 +183,10 @@
                 </div>
                 <div class="divTableRow">
                     <div class="divTableCell">
-                        <button class = "button_functie" id="button_readHolding" onclick="fetchHoldingJSON()"> Read Holding Registers</button>
+                        <button class = "button_functie" id="button_readHolding" onclick="fetchHoldingValue()"> Read Holding Registers</button>
                     </div>
                     <div class="divTableCell">
-                        <button class = "button_functie" id="button_readInput" onclick="fetchInputJSON()"> Read Input Registers</button>
+                        <button class = "button_functie" id="button_readInput" onclick="fetchInputValue()"> Read Input Registers</button>
                     </div>
                 </div>
             </div>

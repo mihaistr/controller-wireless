@@ -29,14 +29,14 @@ unsigned long timerDelay = 120000; // send readings timer
 
 uint16_t databits, stopBits; // for future development
 uint16_t functionCode;       // for future development
-uint16_t coilCount;          // for future development
+uint16_t coilCountRead;          // for future development
 char parity;                 // for future development
 
 uint16_t baud_rate = 9600;
 uint16_t serverAddress = 1;
-uint16_t startAddressCoils = 1;
+uint16_t startAddressReadCoils = 1;
 uint16_t bitCount = 1;
-uint16_t startAddressReg = 0;
+uint16_t startAddressReadRegisters = 0;
 uint16_t regCount = 1;
 
 float voltage = 0; // value read
@@ -51,11 +51,11 @@ void server_start(); // start the web server ierface
 
 void server_settings(); // process the Settings tab requests
 
-//send the request to modbus slave, lisen, process response
-void send_modbus_readCoil(uint16_t startAddressCoils, uint16_t coilCount); // function code 01
-void send_modbus_readDiscrete(uint16_t startAddressCoils, uint16_t coilCount); // function code 02
-void send_modbus_readHolding(uint16_t startAddressReg, uint16_t regCount); // function code 03
-void send_modbus_readInput(uint16_t startAddressReg, uint16_t regCount); // function code 04 ??? verifica daca is corecte
+// send the request to modbus slave, lisen, process response
+void send_modbus_readCoil(uint16_t startAddressReadCoils, uint16_t coilCountRead);     // function code 01
+void send_modbus_readDiscrete(uint16_t startAddressReadCoils, uint16_t coilCountRead); // function code 02
+void send_modbus_readHolding(uint16_t startAddressReadRegisters, uint16_t regCount);     // function code 03
+void send_modbus_readInput(uint16_t startAddressReadRegisters, uint16_t regCount);       // function code 04 ??? verifica daca is corecte
 
 void notFound(AsyncWebServerRequest *request); // in case the web page requested is not found
 
@@ -125,9 +125,9 @@ void server_start()
               { request->send(LittleFS, "/scripts.js"); });
 }
 
-// settings?serverAddress=1&baud_rate=9600&databits=8&parity=even&stopBits=1
 void server_settings()
 {
+    // settings?serverAddress=1&baud_rate=9600&databits=8&parity=even&stopBits=1
     server.on("/settings", HTTP_GET, [](AsyncWebServerRequest *request)
               {   
                 // atribuire valorile parametrilor 
@@ -147,18 +147,18 @@ void server_settings()
 
 void server_readCoils()
 {
-    // readCoils?startAddressCoils=0&coilCount=1
+    // readCoils?startAddressReadCoils=0&readcoilCountRead=1
     server.on("/readCoils", HTTP_GET, [](AsyncWebServerRequest *request)
               {
-              startAddressCoils = request->getParam(0)->value().toInt();
-              coilCount = request->getParam(1)->value().toInt();
+              startAddressReadCoils = request->getParam(0)->value().toInt();
+              coilCountRead = request->getParam(1)->value().toInt();
             
-              Serial.println("startAddressCoils"); // print in serial command for debug reasons
-              Serial.println(startAddressCoils);
-              Serial.println("coilCount");
-              Serial.println(coilCount);
+              Serial.println("startAddressReadCoils"); // print in serial command for debug reasons
+              Serial.println(startAddressReadCoils);
+              Serial.println("coilCountRead");
+              Serial.println(coilCountRead);
 
-              send_modbus_readCoil(startAddressCoils,coilCount);
+              send_modbus_readCoil(startAddressReadCoils,coilCountRead);
 
         AsyncResponseStream *response = request->beginResponseStream("application/json");
         serializeJson(json_doc, *response);
@@ -167,13 +167,13 @@ void server_readCoils()
 
 void server_readDiscrete()
 {
-    // readDiscrete?startAddressCoils=0&coilCount=1;
+    // readDiscrete?startAddressReadCoils=0&coilCountRead=1;
     server.on("/readDiscrete", HTTP_GET, [](AsyncWebServerRequest *request)
               {
-              startAddressCoils = request->getParam(0)->value().toInt();
-              coilCount = request->getParam(1)->value().toInt();
+              startAddressReadCoils = request->getParam(0)->value().toInt();
+              coilCountRead = request->getParam(1)->value().toInt();
             
-              send_modbus_readDiscrete(startAddressCoils,coilCount);
+              send_modbus_readDiscrete(startAddressReadCoils,coilCountRead);
 
         AsyncResponseStream *response = request->beginResponseStream("application/json");
         serializeJson(json_doc, *response);
@@ -182,13 +182,13 @@ void server_readDiscrete()
 
 void server_readHolding()
 {
-    // readHolding?startAddressReg=2&regCount=4
+    // readHolding?startAddressReadRegisters=2&regCount=4
     server.on("/readHolding", HTTP_GET, [](AsyncWebServerRequest *request)
               {
-        startAddressReg = request->getParam(0)->value().toInt();
+        startAddressReadRegisters = request->getParam(0)->value().toInt();
         regCount = request->getParam(1)->value().toInt();
 
-        send_modbus_readHolding(startAddressReg, regCount);
+        send_modbus_readHolding(startAddressReadRegisters, regCount);
 
         // todo: documentatie JSON
         AsyncResponseStream *response = request->beginResponseStream("application/json");
@@ -198,13 +198,13 @@ void server_readHolding()
 
 void server_readInput()
 {
-    // /readInput?startAddressReg=0&regCount=2
+    // /readInput?startAddressReadRegisters=0&regCount=2
     server.on("/readInput", HTTP_GET, [](AsyncWebServerRequest *request)
               {
-        startAddressReg = request->getParam(0)->value().toInt();
+        startAddressReadRegisters = request->getParam(0)->value().toInt();
         regCount = request->getParam(1)->value().toInt();
 
-        send_modbus_readInput(startAddressReg, regCount);
+        send_modbus_readInput(startAddressReadRegisters, regCount);
 
         // todo: documentatie JSON
         AsyncResponseStream *response = request->beginResponseStream("application/json");
@@ -273,13 +273,13 @@ bool cb(Modbus::ResultCode event, uint16_t transactionId, void *data)
     return true;
 }
 
-void send_modbus_readCoil(uint16_t startAddressCoils, uint16_t coilCount)
+void send_modbus_readCoil(uint16_t startAddressReadCoils, uint16_t coilCountRead)
 {
-    bool coils[coilCount];
+    bool coils[coilCountRead];
 
     if (!mb.slave())
     { // send modbus function code $01
-        mb.readCoil(serverAddress, startAddressReg, coils, coilCount, cb);
+        mb.readCoil(serverAddress, startAddressReadCoils, coils, coilCountRead, cb);
 
         while (mb.slave())
         { // Check if transaction is active
@@ -300,7 +300,7 @@ void send_modbus_readCoil(uint16_t startAddressCoils, uint16_t coilCount)
             json_doc["transaction_code"] = transaction_code;
             // Create the array that stores the values
             JsonArray valoareRegistrii = json_doc.createNestedArray("slaveCoils");
-            for (int i = 0; i < coilCount; i++)
+            for (int i = 0; i < coilCountRead; i++)
             {
                 // Add the value at the end of the array
                 valoareRegistrii.add(coils[i]);
@@ -309,13 +309,13 @@ void send_modbus_readCoil(uint16_t startAddressCoils, uint16_t coilCount)
     }
 }
 
-void send_modbus_readDiscrete(uint16_t startAddressCoils, uint16_t coilCount)
+void send_modbus_readDiscrete(uint16_t startAddressReadCoils, uint16_t coilCountRead)
 {
-    bool discrete[coilCount];
+    bool discrete[coilCountRead];
 
     if (!mb.slave())
     { // send modbus function code $02
-        mb.readIsts(serverAddress, startAddressReg, discrete, coilCount, cb);
+        mb.readIsts(serverAddress, startAddressReadCoils, discrete, coilCountRead, cb);
 
         while (mb.slave())
         { // Check if transaction is active
@@ -333,7 +333,7 @@ void send_modbus_readDiscrete(uint16_t startAddressCoils, uint16_t coilCount)
             json_doc["transaction_code"] = transaction_code;
             // Create the array that stores the values
             JsonArray valoareRegistrii = json_doc.createNestedArray("slaveDiscrete");
-            for (int i = 0; i < coilCount; i++)
+            for (int i = 0; i < coilCountRead; i++)
             {
                 // Add the value at the end of the array
                 valoareRegistrii.add(discrete[i]);
@@ -342,12 +342,12 @@ void send_modbus_readDiscrete(uint16_t startAddressCoils, uint16_t coilCount)
     }
 }
 
-void send_modbus_readHolding(uint16_t startAddressReg, uint16_t regCount)
+void send_modbus_readHolding(uint16_t startAddressReadRegisters, uint16_t regCount)
 {
     uint16_t res[regCount];
     if (!mb.slave())
     {                                                                   // send modbus function code $03
-        mb.readHreg(serverAddress, startAddressReg, res, regCount, cb); // Send Read Hreg from Modbus Server
+        mb.readHreg(serverAddress, startAddressReadRegisters, res, regCount, cb); // Send Read Hreg from Modbus Server
 
         // Check if no transaction in progress
         while (mb.slave())
@@ -378,12 +378,12 @@ void send_modbus_readHolding(uint16_t startAddressReg, uint16_t regCount)
     }
 }
 
-void send_modbus_readInput(uint16_t startAddressReg, uint16_t regCount)
+void send_modbus_readInput(uint16_t startAddressReadRegisters, uint16_t regCount)
 {
     uint16_t res[regCount];
     if (!mb.slave())
     {                                                                   // send modbus function code $04???
-        mb.readIreg(serverAddress, startAddressReg, res, regCount, cb); // Send Read IReg from Modbus Server
+        mb.readIreg(serverAddress, startAddressReadRegisters, res, regCount, cb); // Send Read IReg from Modbus Server
 
         // Check if no transaction in progress
         while (mb.slave())
@@ -422,4 +422,3 @@ String processor(const String &var)
 
     return String();
 }
-
