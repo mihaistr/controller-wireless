@@ -82,6 +82,13 @@ function update_consola(item_id, item_value) {  // print in console the action
   document.getElementById("consola").scrollTop = document.getElementById("consola").scrollHeight; //autoscroll
 }
 
+function update_checkbox_label(item_value) { // get the label of checkbox to match with the start adress of coil
+  
+  document.getElementById("label_checkbox0").innerHTML = "Coil " + item_value;
+  console.log ("Coil " + item_value)
+}
+
+// functinons to show the requested answer form slave
 function afisare_transaction_code(parametru) {  // Exception Codes
   // print cod succes sau eroare
   // parametru values are from modbus library error handling
@@ -124,8 +131,9 @@ function afisare_raspuns_primit(item_type, item_number, item_value) {   // print
   document.getElementById("consola").scrollTop = document.getElementById("consola").scrollHeight; //autoscroll
 }
 
+// functions to send request to backend
 async function fetchCoilsValue() {   // trimitere cerere catre backend pentru citirea de coils
-                                    // send request to backend for read coils
+  // send request to backend for read coils
 
   let startAddressReadCoils = document.getElementById("startAddressReadCoils").value;
   let coilCountRead = document.getElementById("coilCountRead").value;
@@ -185,7 +193,7 @@ async function fetchDiscreteValue() {   // trimitere cerere catre backend pentru
       else resultJSON.slaveDiscrete[i] = "off";
 
       afisare_raspuns_primit("discrete input", parseInt(startAddressReadCoils) + i, resultJSON.slaveDiscrete[i]);
-      
+
     }
 
   } else {
@@ -257,37 +265,37 @@ async function fetchInputValue() {    // trimitere cerere catre backend pentru c
 async function writeCoilsValue() {   // trimitere cerere catre backend pentru scriere de coils
   // send request to backend for write coils
 
-let startAddressWriteCoils = document.getElementById("startAddressWriteCoils").value;
+  let startAddressWriteCoils = document.getElementById("startAddressWriteCoils").value;
   let coilCountWrite = document.getElementById("coilCountWrite").value;
   let valueToWriteCoil = document.getElementById("checkbox0").checked ? 1 : 0; // transform from true/false to 1/0 because 
-                                                                              // the URL is string and is converted to bool in C side
-document.getElementById("consola").value += timestamp() + " INIT: Write " + coilCountWrite + " coil at address: " + startAddressWriteCoils + "\n";
+  // the URL is string and is converted to bool in C side
+  document.getElementById("consola").value += timestamp() + " INIT: Write " + coilCountWrite + " coil at address: " + startAddressWriteCoils + "\n";
 
-//writeCoils?startAddresWriteCoils=0&coilCountWrite=1&valueToWriteCoil=1
-let url = "/writeCoils?startAddresWriteCoils=" + startAddressWriteCoils + "&coilCountWrite=" + coilCountWrite + "&valueToWriteCoil="+ valueToWriteCoil;
-let response = await fetch(url);
+  //writeCoils?startAddresWriteCoils=0&coilCountWrite=1&valueToWriteCoil=1
+  let url = "/writeCoils?startAddresWriteCoils=" + startAddressWriteCoils + "&coilCountWrite=" + coilCountWrite + "&valueToWriteCoil=" + valueToWriteCoil;
+  let response = await fetch(url);
 
-if (response.ok) { // if HTTP-status is 200-299
+  if (response.ok) { // if HTTP-status is 200-299
 
-let resultJSON = await response.json();
+    let resultJSON = await response.json();
 
-afisare_transaction_code(resultJSON.transaction_code);
-  console.log(resultJSON);
+    afisare_transaction_code(resultJSON.transaction_code);
+    console.log(resultJSON);
 
-for (let i = 0; i < resultJSON.slaveCoils.length; i++) {
-console.log(resultJSON.slaveCoils[i]);
+    for (let i = 0; i < resultJSON.slaveCoils.length; i++) {
+      console.log(resultJSON.slaveCoils[i]);
 
-if (resultJSON.slaveCoils[i] == 1) { // modify from true/false to modbus specific on/off
-resultJSON.slaveCoils[i] = "on";
-}
-else resultJSON.slaveCoils[i] = "off";
+      if (resultJSON.slaveCoils[i] == 1) { // modify from true/false to modbus specific on/off
+        resultJSON.slaveCoils[i] = "on";
+      }
+      else resultJSON.slaveCoils[i] = "off";
 
-afisare_raspuns_primit("coil", parseInt(startAddressWriteCoils) + i, resultJSON.slaveCoils[i]);
-}
+      afisare_raspuns_primit("coil", parseInt(startAddressWriteCoils) + i, resultJSON.slaveCoils[i]);
+    }
 
-} else {
-alert("HTTP-Error: " + response.status);
-}
+  } else {
+    alert("HTTP-Error: " + response.status);
+  }
 
 }
 

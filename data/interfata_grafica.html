@@ -136,19 +136,21 @@
 
     <!-- Tab Discrete Access -->
     <div id="tab_discreteAccess" class="tabcontent">
-
+        <!-- DISCRETE READ -->
         <div class="divTable DiscreteAccess">
             <div class="divTableBody">
                 <h2>Discrete Read</h2>
                 <div class="divTableRow">
                     <div class="divTableCell">
                         <div> Start Address <input type="number" id="startAddressReadCoils" name="startAddressReadCoils"
-                                value="0" min="0" max="65535" onclick="update_consola('Start Address', this.value)">
+                                value="0" min="0" max="65535">
+                            <!-- onclick="update_consola('Start Address', this.value)" -->
                         </div>
                     </div>
                     <div class="divTableCell">
                         <div> Coil Count <input type="number" id="coilCountRead" name="coilCountRead" value="1" min="0"
-                                max="255" onclick="update_consola('Coil Count', this.value)">
+                                max="255">
+                            <!-- onclick="update_consola('Coil Count', this.value)" -->
                         </div>
                     </div>
                 </div>
@@ -170,60 +172,60 @@
         <!-- rand liber  -->
         <br>
 
+        <!-- DISCRETE WRITE -->
         <div class="divTable DiscreteAccess">
             <!-- keep this div name  "divTable DiscreteAccess" to have CSS styling-->
             <div class="divTableBody">
                 <h2>Discrete Write</h2>
                 <div class="divTableRow">
                     <div class="divTableCell">
-    
+
                         <div class="divTable numberFields">
                             <div class="divTableRow">
                                 <div class="divTableCell">
                                     <div> Start Address <input type="number" id="startAddressWriteCoils"
                                             name="startAddressWriteCoils" value="0" min="0" max="65535"
-                                            onclick="update_consola('Start Address', this.value)">
+                                            onclick="update_checkbox_label(this.value)">
                                     </div>
                                 </div>
                             </div>
-    
+
                             <div class="divTableRow">
                                 <div class="divTableCell">
                                     <div> Coil Count <input type="number" id="coilCountWrite" name="coilCountWrite"
-                                            value="1" min="0" max="255" onclick="update_consola('Coil Count', this.value)"
-                                            readonly>
+                                            value="1" min="0" max="255" readonly>
                                     </div>
                                 </div>
                             </div>
-    
+
                         </div>
-    
+
                     </div>
-    
+
                     <div class="divTableCell">
                         <input type="checkbox" id="checkbox0" name="checkbox0">
-                        <label for="checkbox0"> Coil 1</label>
+                        <label for="checkbox0" id="label_checkbox0"> Coil 0</label>
                     </div>
-    
+
                 </div>
-    
+
                 <div class="divTableRow">
-    
+
                     <div class="divTableCell">
                         <button class="button_functie" id="button_writeCoils" onclick="writeCoilsValue()"> Write
                             Single Coil</button>
                     </div>
-    
+
                     <div class="divTableCell">
-                        <button class="button_functie" id="button_writeDiscrete" onclick="writeDiscreteValue()"> Write
-                            Multiple Coils
+                        <button class="button_functie" id="button_writeDiscrete" onclick="writeDiscreteValue()"
+                            disabled> tbd Write Multiple Coils
                         </button>
                     </div>
                 </div>
-    
+
             </div>
         </div>
-       
+
     </div>
     <!-- End of Discrete Access Tab -->
 
@@ -235,12 +237,13 @@
                 <div class="divTableRow">
                     <div class="divTableCell">
                         <div> Start Adress <input type="number" id="startAddressReadRegisters"
-                                name="startAddressReadRegisters" value="0" min="0" max="65535"
-                                onclick="update_consola('First Register', this.value)"></div>
+                                name="startAddressReadRegisters" value="0" min="0" max="65535"></div>
+                        <!-- onclick="update_consola('First Register', this.value)" -->
                     </div>
                     <div class="divTableCell">
                         <div> Register Count <input type="number" id="regCount" name="regCount" value="2" min="0"
-                                max="100" onclick="update_consola('Register Count', this.value)">
+                                max="100">
+                            <!-- onclick="update_consola('Register Count', this.value)" -->
                         </div>
                     </div>
                 </div>
@@ -298,7 +301,7 @@
         </div>
     </div>
 
-   
+
 </body>
 
 </html>
