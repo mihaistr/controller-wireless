@@ -15,6 +15,7 @@
 
 // receivePin = RO , transmitPin = DI , inverse_logic, bufSize, isrBufSize
 SoftwareSerial S(D1, D4);
+// S.setTransmitEnablePin(D0) RE & DE; in function modbus_start
 ModbusRTU mb;
 
 AsyncWebServer server(80);
@@ -35,15 +36,15 @@ char parity; // for future development
 uint16_t baud_rate = 9600;
 uint16_t serverAddress = 1;
 
-uint16_t startAddressReadCoils = 1;
-uint16_t startAddressReadRegisters = 0;
+uint16_t startAddressReadCoils;
+uint16_t startAddressReadRegisters;
 
 uint16_t startAddressWriteCoils;
 uint16_t startAddressWriteRegisters;
 
 uint16_t coilCountRead;
 uint16_t coilCountWrite;
-uint16_t registerCountRead = 1;
+uint16_t registerCountRead;
 uint16_t registerCountWrite;
 
 bool valueToWriteCoil;
@@ -62,10 +63,10 @@ void server_start(); // start the web server ierface
 void server_settings(); // process the Settings tab requests
 
 // send the request to modbus slave, lisen, process response
-void send_modbus_readCoil(uint16_t startAddressReadCoils, uint16_t coilCountRead);            // function code 01
-void send_modbus_readDiscrete(uint16_t startAddressReadCoils, uint16_t coilCountRead);        // function code 02
-void send_modbus_readHolding(uint16_t startAddressReadRegisters, uint16_t registerCountRead); // function code 03
-void send_modbus_readInput(uint16_t startAddressReadRegisters, uint16_t registerCountRead);   // function code 04 ??? verifica daca is corecte
+void send_modbus_readCoil(uint16_t startAddressReadCoils, uint16_t coilCountRead);            // function code $01
+void send_modbus_readDiscrete(uint16_t startAddressReadCoils, uint16_t coilCountRead);        // function code $02
+void send_modbus_readHolding(uint16_t startAddressReadRegisters, uint16_t registerCountRead); // function code $03
+void send_modbus_readInput(uint16_t startAddressReadRegisters, uint16_t registerCountRead);   // function code $04
 
 void send_modbus_writeCoil(uint16_t startAddressWriteCoils, bool valueToWriteCoil);             // function code $05
 void send_modbus_writeHreg(uint16_t startAddressWriteRegisters, uint16_t valueToWriteRegister); // function code $06
@@ -137,7 +138,7 @@ void server_start()
               { request->send(LittleFS, "/style.css"); });
 
     server.on("/scripts.js", HTTP_GET, [](AsyncWebServerRequest *request)
-              { request->send(LittleFS, "/scripts.js"); });
+              { request->send(LittleFS, "/scripts.js"); });    
 }
 
 void server_settings()
@@ -151,10 +152,10 @@ void server_settings()
                 databits = request->getParam(2)->value().toInt();
                 stopBits = request->getParam(4)->value().toInt();
 
-                Serial.println("serverAddress:"); // print in serial command for debug reasons
-                Serial.println(serverAddress);
-                Serial.println("baudrate:");
-                Serial.println(baud_rate);
+                // Serial.println("serverAddress:"); // print in serial command for debug reasons
+                // Serial.println(serverAddress);
+                // Serial.println("baudrate:");
+                // Serial.println(baud_rate);
                                              
                 // reincarcare interfata web
                 request->send(LittleFS, "/interfata_grafica.html", String(), false, processor); });
@@ -168,10 +169,10 @@ void server_readCoils()
               startAddressReadCoils = request->getParam(0)->value().toInt();
               coilCountRead = request->getParam(1)->value().toInt();
             
-              Serial.println("startAddressReadCoils"); // print in serial command for debug reasons
-              Serial.println(startAddressReadCoils);
-              Serial.println("coilCountRead");
-              Serial.println(coilCountRead);
+            //   Serial.println("startAddressReadCoils"); // print in serial command for debug reasons
+            //   Serial.println(startAddressReadCoils);
+            //   Serial.println("coilCountRead");
+            //   Serial.println(coilCountRead);
 
               send_modbus_readCoil(startAddressReadCoils,coilCountRead);
 
@@ -239,12 +240,12 @@ void server_writeCoils()
               else
               valueToWriteCoil = 0;
 
-              Serial.println("startAddressWriteCoils"); // print in serial command for debug reasons
-              Serial.println(startAddressWriteCoils);
-              Serial.println("coilCountWrite");
-              Serial.println(coilCountWrite);
-              Serial.println("valueToWriteCoil");
-              Serial.println(valueToWriteCoil);
+            //   Serial.println("startAddressWriteCoils"); // print in serial command for debug reasons
+            //   Serial.println(startAddressWriteCoils);
+            //   Serial.println("coilCountWrite");
+            //   Serial.println(coilCountWrite);
+            //   Serial.println("valueToWriteCoil");
+            //   Serial.println(valueToWriteCoil);
 
               send_modbus_writeCoil(startAddressWriteCoils,valueToWriteCoil);
 
@@ -255,19 +256,19 @@ void server_writeCoils()
 
 void server_writeHreg()
 {
-    //writeHreg?startAddressWriteRegisters=0&registerCountWrite=1&valueToWriteRegister=0
+    // writeHreg?startAddressWriteRegisters=0&registerCountWrite=1&valueToWriteRegister=0
     server.on("/writeHreg", HTTP_GET, [](AsyncWebServerRequest *request)
               {
               startAddressWriteRegisters = request->getParam(0)->value().toInt();
               registerCountWrite = request->getParam(1)->value().toInt();
               valueToWriteRegister = request->getParam(2)->value().toInt();
 
-              Serial.println("startAddressWriteRegisters"); // print in serial command for debug reasons
-              Serial.println(startAddressWriteRegisters);
-              Serial.println("registerCountWrite");
-              Serial.println(registerCountWrite);
-              Serial.println("valueToWriteRegister");
-              Serial.println(valueToWriteRegister);
+            //   Serial.println("startAddressWriteRegisters"); // print in serial command for debug reasons
+            //   Serial.println(startAddressWriteRegisters);
+            //   Serial.println("registerCountWrite");
+            //   Serial.println(registerCountWrite);
+            //   Serial.println("valueToWriteRegister");
+            //   Serial.println(valueToWriteRegister);
 
               send_modbus_writeHreg(startAddressWriteRegisters,valueToWriteRegister);
 

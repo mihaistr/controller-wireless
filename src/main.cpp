@@ -21,6 +21,7 @@ void setup()
   server_readInput();
   server_writeCoils();
   server_writeHreg();
+  
 }
 
 void loop()

@@ -88,7 +88,8 @@ function update_checkbox_label(item_value) { // get the label of checkbox to mat
   console.log("Coil " + item_value)
 }
 
-function update_register_number_label(item_value) { // get the label of register number box to match with the start adress of register
+function update_register_number_label(item_value) { // get the label of register value box to match with the start adress of register
+
   document.getElementById("label_numberRegisterValue").innerHTML = "Register " + item_value;
   console.log("Register " + item_value)
 }
@@ -96,10 +97,10 @@ function update_register_number_label(item_value) { // get the label of register
 // functinons to show the requested answer form slave
 function afisare_transaction_code(parametru) {  // Exception Codes
   // print cod succes sau eroare
-  // parametru values are from modbus library error handling
+  // parametru values are from modbus library error handling Modbus.h -> Modbus-> ResultCode
 
   let text_raspuns_cerere;
-
+  // coduri cel mai des folosite
   switch (parametru) {
     case 0:
       text_raspuns_cerere = "Transaction successful";
@@ -155,15 +156,17 @@ async function fetchCoilsValue() {   // trimitere cerere catre backend pentru ci
 
     afisare_transaction_code(resultJSON.transaction_code);
 
-    for (let i = 0; i < resultJSON.slaveCoils.length; i++) {
-      console.log(resultJSON.slaveCoils[i]);
+    if (resultJSON.transaction_code == 0) {
+      for (let i = 0; i < resultJSON.slaveCoils.length; i++) {
+        console.log(resultJSON.slaveCoils[i]);
 
-      if (resultJSON.slaveCoils[i]) { // modify from true/false to modbus specific on/off
-        resultJSON.slaveCoils[i] = "on";
+        if (resultJSON.slaveCoils[i]) { // modify from true/false to modbus specific on/off
+          resultJSON.slaveCoils[i] = "on";
+        }
+        else resultJSON.slaveCoils[i] = "off";
+
+        afisare_raspuns_primit("coil", parseInt(startAddressReadCoils) + i, resultJSON.slaveCoils[i]);
       }
-      else resultJSON.slaveCoils[i] = "off";
-
-      afisare_raspuns_primit("coil", parseInt(startAddressReadCoils) + i, resultJSON.slaveCoils[i]);
     }
 
   } else {
@@ -189,16 +192,17 @@ async function fetchDiscreteValue() {   // trimitere cerere catre backend pentru
 
     afisare_transaction_code(resultJSON.transaction_code);
 
-    for (let i = 0; i < resultJSON.slaveDiscrete.length; i++) {
-      console.log(resultJSON.slaveDiscrete[i]);
+    if (resultJSON.transaction_code == 0) {
+      for (let i = 0; i < resultJSON.slaveDiscrete.length; i++) {
+        console.log(resultJSON.slaveDiscrete[i]);
 
-      if (resultJSON.slaveDiscrete[i]) { // modify from true/false to modbus specific on/off
-        resultJSON.slaveDiscrete[i] = "on";
+        if (resultJSON.slaveDiscrete[i]) { // modify from true/false to modbus specific on/off
+          resultJSON.slaveDiscrete[i] = "on";
+        }
+        else resultJSON.slaveDiscrete[i] = "off";
+
+        afisare_raspuns_primit("discrete input", parseInt(startAddressReadCoils) + i, resultJSON.slaveDiscrete[i]);
       }
-      else resultJSON.slaveDiscrete[i] = "off";
-
-      afisare_raspuns_primit("discrete input", parseInt(startAddressReadCoils) + i, resultJSON.slaveDiscrete[i]);
-
     }
 
   } else {
@@ -226,9 +230,11 @@ async function fetchHoldingValue() {    // trimitere cerere catre backend pentru
 
     afisare_transaction_code(resultJSON.transaction_code);
 
-    for (let i = 0; i < resultJSON.slaveHolding.length; i++) {
-      console.log(resultJSON.slaveHolding[i]);
-      afisare_raspuns_primit("registru", parseInt(startAddressReadRegisters) + i, resultJSON.slaveHolding[i]);
+    if (resultJSON.transaction_code == 0) {
+      for (let i = 0; i < resultJSON.slaveHolding.length; i++) {
+        console.log(resultJSON.slaveHolding[i]);
+        afisare_raspuns_primit("registru", parseInt(startAddressReadRegisters) + i, resultJSON.slaveHolding[i]);
+      }
     }
 
   } else {
@@ -256,9 +262,11 @@ async function fetchInputValue() {    // trimitere cerere catre backend pentru c
 
     afisare_transaction_code(resultJSON.transaction_code);
 
-    for (let i = 0; i < resultJSON.slaveInput.length; i++) {
-      console.log(resultJSON.slaveInput[i]);
-      afisare_raspuns_primit("registru", parseInt(startAddressReadRegisters) + i, resultJSON.slaveInput[i]);
+    if (resultJSON.transaction_code == 0) {
+      for (let i = 0; i < resultJSON.slaveInput.length; i++) {
+        console.log(resultJSON.slaveInput[i]);
+        afisare_raspuns_primit("registru", parseInt(startAddressReadRegisters) + i, resultJSON.slaveInput[i]);
+      }
     }
 
   } else {
@@ -287,15 +295,17 @@ async function writeCoilsValue() {   // trimitere cerere catre backend pentru sc
     afisare_transaction_code(resultJSON.transaction_code);
     console.log(resultJSON);
 
-    for (let i = 0; i < resultJSON.slaveCoils.length; i++) {
-      console.log(resultJSON.slaveCoils[i]);
+    if (resultJSON.transaction_code == 0) {
+      for (let i = 0; i < resultJSON.slaveCoils.length; i++) {
+        console.log(resultJSON.slaveCoils[i]);
 
-      if (resultJSON.slaveCoils[i] == 1) { // modify from true/false to modbus specific on/off
-        resultJSON.slaveCoils[i] = "on";
+        if (resultJSON.slaveCoils[i] == 1) { // modify from true/false to modbus specific on/off
+          resultJSON.slaveCoils[i] = "on";
+        }
+        else resultJSON.slaveCoils[i] = "off";
+
+        afisare_raspuns_primit("coil", parseInt(startAddressWriteCoils) + i, resultJSON.slaveCoils[i]);
       }
-      else resultJSON.slaveCoils[i] = "off";
-
-      afisare_raspuns_primit("coil", parseInt(startAddressWriteCoils) + i, resultJSON.slaveCoils[i]);
     }
 
   } else {
@@ -322,11 +332,12 @@ async function writeHoldingRegister() {   // trimitere cerere catre backend pent
     let resultJSON = await response.json();
 
     afisare_transaction_code(resultJSON.transaction_code);
-    console.log(resultJSON);
 
-    for (let i = 0; i < resultJSON.slaveHolding.length; i++) {
-      console.log(resultJSON.slaveHolding[i]);
-      afisare_raspuns_primit("registru", parseInt(startAddressWriteRegisters) + i, resultJSON.slaveHolding[i]);
+    if (resultJSON.transaction_code == 0) {
+      for (let i = 0; i < resultJSON.slaveHolding.length; i++) {
+        console.log(resultJSON.slaveHolding[i]);
+        afisare_raspuns_primit("registru", parseInt(startAddressWriteRegisters) + i, resultJSON.slaveHolding[i]);
+      }
     }
 
   } else {

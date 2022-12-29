@@ -31,9 +31,7 @@
     </div>
 
     <br>
-    <h2>Modbus Connection Options </h2><br>
-
-    <!-- Tab Settings -->
+    <h2>Modbus Connection Options </h2><br>  
 
     <!-- Tab links -->
     <div class="tab">
@@ -43,7 +41,9 @@
         <button class="tablinks" onclick="openTab(event, 'tab_registerAccess')">Register
             Access</button>
     </div>
-    <!-- Tab content -->
+
+    <!-- SETTINGS TAB -->
+    <!-- todo: send JSON request instead of GET -->
     <form action="/settings" method="get">
         <div id="tab_settings" class="tabcontent">
             <div class="row_settings">
@@ -133,9 +133,9 @@
         </div>
 
     </form>
-    <!-- Settings tab end  -->
+    <!-- END OF SETTINGS TAB  -->
 
-    <!-- Tab Discrete Access -->
+    <!-- DISCRETE ACCESS TAB -->
     <div id="tab_discreteAccess" class="tabcontent">
 
         <!-- DISCRETE READ -->
@@ -231,9 +231,9 @@
         <!-- END OF DISCRETE WRITE -->
 
     </div>
-    <!-- End of Discrete Access Tab -->
+    <!-- END OF DISCRETE ACCESS TAB -->
 
-    <!-- Register Access Tab  -->
+    <!-- REGISTER ACCESS TAB -->
     <div id="tab_registerAccess" class="tabcontent">
 
         <!-- REGISTER READ -->
@@ -319,12 +319,10 @@
                 </div>
 
                 <div class="divTableRow">
-
                     <div class="divTableCell">
                         <button class="button_functie" id="button_writeRegister" onclick="writeHoldingRegister()"> Write
                             Single Register</button>
                     </div>
-
                     <div class="divTableCell">
                         <button class="button_functie" id="button_writeDiscrete" disabled> tbd Write Multiple Registers
                         </button>
@@ -333,50 +331,15 @@
 
             </div>
         </div>
-
         <!-- END OF REGISTER WRITE -->
 
-
     </div>
-    <!-- End of Register Access Tab -->
+    <!-- END OF REGISTER ACCESS TAB -->
 
     <div><br>
         <!-- text console to inform user about the actions taken -->
         <textarea id="consola" name="consola" rows="15" cols="55" readonly></textarea>
     </div>
-
-
-    <!-- test -->
-    <div class="divTable DiscreteAccess">
-        <div class="divTableBody">
-            <div class="divTableRow">
-                <div class="divTableCell">
-
-                    cell1_1
-
-                </div>
-                <div class="divTableCell">
-
-                    cell2_1
-
-                </div>
-            </div>
-
-            <div class="divTableRow">
-                <div class="divTableCell">
-
-                    cell1_2
-
-                </div>
-                <div class="divTableCell">
-
-                    cell2_2
-
-                </div>
-            </div>
-        </div>
-    </div>
-
 
 </body>
 
