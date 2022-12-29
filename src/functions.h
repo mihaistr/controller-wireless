@@ -91,35 +91,15 @@ void server_writeHreg();    // process the writeHreg function tab request
 
 void wifi_start()
 {
-    const char *ssid = "HUAWEI-1AN1IZ";
-    const char *password = "Huawei12345";
-
-    // const char *ssid = "Mihai.Str";
-    // const char *password = "";
-
-    WiFi.begin(ssid, password);
-    Serial.println("");
-    // Wait for connection
-    while (WiFi.status() != WL_CONNECTED)
-    {
-        delay(500);
-        Serial.print(".");
-    }
-    Serial.println("");
-    Serial.print("Connected to ");
-    Serial.println(ssid);
-    Serial.print("IP address: ");
-    Serial.println(WiFi.localIP());
-
     // todo:
     // wireless connection
-    // const char *ssid = "Controller ModbusRS485";
-    // const char *password = "";
-    // WiFi.softAP(ssid, password);
-    // IPAddress IP = WiFi.softAPIP();
+    const char *ssid = "Controller ModbusRS485";
+    const char *password = "";
+    WiFi.softAP(ssid, password);
+    IPAddress IP = WiFi.softAPIP();
 
-    // Serial.print("AP IP address: ");
-    // Serial.println(IP);
+    Serial.print("AP IP address: ");
+    Serial.println(IP);
 }
 
 void server_start()
@@ -138,7 +118,7 @@ void server_start()
               { request->send(LittleFS, "/style.css"); });
 
     server.on("/scripts.js", HTTP_GET, [](AsyncWebServerRequest *request)
-              { request->send(LittleFS, "/scripts.js"); });    
+              { request->send(LittleFS, "/scripts.js"); });
 }
 
 void server_settings()
