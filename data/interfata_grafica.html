@@ -134,8 +134,7 @@
     </form>
     <!-- Settings tab end  -->
 
-    <!-- Tab Functions -->
-
+    <!-- Tab Discrete Access -->
     <div id="tab_discreteAccess" class="tabcontent">
 
         <div class="divTable DiscreteAccess">
@@ -170,8 +169,92 @@
 
         <!-- rand liber  -->
         <br>
-    </div>
 
+        <div class="divTable DiscreteAccess">
+            <div class="divTableBody">
+                <h2>Discrete Write</h2>
+                <div class="divTableRow">
+                    <div class="divTableCell">
+                        <div> Start Address <input type="number" id="startAddressWriteCoils"
+                                name="startAddressWriteCoils" value="0" min="0" max="65535"
+                                onclick="update_consola('Start Address', this.value)">
+                        </div>
+                    </div>
+                    <div class="divTableCell">
+                        <input type="checkbox" id="checkbox0" name="checkbox0"> 
+                        <label for ="checkbox0"> Coil 1</label>
+                    </div>
+                </div>
+
+                <!-- <div class="divTableBody">
+                    <div class="divTableRow">
+                        <div class="divTableCell">
+
+                        </div>
+                        <div class="divTableCell">
+                            <input type="checkbox" id="checkbox0" name="checkbox0"> Coil 2
+                        </div>
+                    </div>
+                </div> -->
+
+                <div class="divTableRow">
+                    <div class="divTableCell">
+
+                        <div> Coil Count <input type="number" id="coilCountWrite" name="coilCountWrite" value="1" min="0"
+                                max="255" onclick="update_consola('Coil Count', this.value)" readonly>
+                        </div>
+
+                    </div>
+                    <!-- <div class="divTableCell">
+                        <input type="checkbox" id="checkbox0" name="checkbox0"> Coil 3
+                    </div> -->
+                </div>
+
+<!-- 
+                <div class="divTableBody">
+                    <div class="divTableRow">
+                        <div class="divTableCell">
+
+                            cell1_4
+
+                        </div>
+                        <div class="divTableCell">
+                            <input type="checkbox" id="checkbox0" name="checkbox0"> Coil 4
+                        </div>
+                    </div>
+
+                    <div class="divTableRow">
+                        <div class="divTableCell">
+
+                            cell1_5
+
+                        </div>
+                        <div class="divTableCell" text-align="left">
+                            <input type="checkbox" id="checkbox0" name="checkbox0"> Coil 5
+                        </div>
+                    </div>
+                </div> -->
+
+                <div class="divTableRow">
+                    <div class="divTableCell">
+                        <button class="button_functie" id="button_writeCoils" onclick="writeCoilsValue()"> Write
+                            Single Coil</button>
+                    </div>
+                    <div class="divTableCell">
+                        <button class="button_functie" id="button_writeDiscrete" onclick="writeDiscreteValue()"> Write
+                            Multiple Coils
+                        </button>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+    </div>
+    <!-- End of Discrete Access Tab -->
+
+    <!-- Register Access Tab  -->
     <div id="tab_registerAccess" class="tabcontent">
         <div class="divTable DiscreteAccess">
             <div class="divTableBody">
@@ -203,7 +286,7 @@
         </div>
 
     </div>
-    <!-- Function tab end -->
+    <!-- End of Register Access Tab -->
 
     <div><br>
         <!-- text console to inform user about the actions taken -->

@@ -29,13 +29,18 @@ unsigned long timerDelay = 120000; // send readings timer
 
 uint16_t databits, stopBits; // for future development
 uint16_t functionCode;       // for future development
-uint16_t coilCountRead;          // for future development
-char parity;                 // for future development
+
+char parity; // for future development
 
 uint16_t baud_rate = 9600;
 uint16_t serverAddress = 1;
+
 uint16_t startAddressReadCoils = 1;
-uint16_t bitCount = 1;
+uint16_t startAddressWriteCoils;
+uint16_t coilCountRead;
+uint16_t coilCountWrite;
+bool valueToWriteCoil;
+
 uint16_t startAddressReadRegisters = 0;
 uint16_t regCount = 1;
 
@@ -54,8 +59,10 @@ void server_settings(); // process the Settings tab requests
 // send the request to modbus slave, lisen, process response
 void send_modbus_readCoil(uint16_t startAddressReadCoils, uint16_t coilCountRead);     // function code 01
 void send_modbus_readDiscrete(uint16_t startAddressReadCoils, uint16_t coilCountRead); // function code 02
-void send_modbus_readHolding(uint16_t startAddressReadRegisters, uint16_t regCount);     // function code 03
-void send_modbus_readInput(uint16_t startAddressReadRegisters, uint16_t regCount);       // function code 04 ??? verifica daca is corecte
+void send_modbus_readHolding(uint16_t startAddressReadRegisters, uint16_t regCount);   // function code 03
+void send_modbus_readInput(uint16_t startAddressReadRegisters, uint16_t regCount);     // function code 04 ??? verifica daca is corecte
+
+void send_modbus_writeCoil(uint16_t startAddressWriteCoils, bool valueToWriteCoil); // function code $05
 
 void notFound(AsyncWebServerRequest *request); // in case the web page requested is not found
 
@@ -72,6 +79,7 @@ void server_readCoils();    // process the readCoils function tab request
 void server_readDiscrete(); // process the readDiscrete function tab request
 void server_readHolding();  // process the readHolding function tab request
 void server_readInput();    // process the readInput function tab request
+void server_writeCoils();   // process the writeCoils function tab request
 
 void wifi_start()
 {
@@ -212,6 +220,32 @@ void server_readInput()
         request->send(response); });
 }
 
+void server_writeCoils()
+{
+    // writeCoils?startAddressWriteCoils=0&coilCountWrite=1&valueToWriteCoil=0;
+    server.on("/writeCoils", HTTP_GET, [](AsyncWebServerRequest *request)
+              {
+              startAddressWriteCoils = request->getParam(0)->value().toInt();
+              coilCountWrite = request->getParam(1)->value().toInt();
+              if (request->getParam(2)->value().toInt())
+              valueToWriteCoil = 1;
+              else
+              valueToWriteCoil = 0;
+
+              Serial.println("startAddressWriteCoils"); // print in serial command for debug reasons
+              Serial.println(startAddressWriteCoils);
+              Serial.println("coilCountWrite");
+              Serial.println(coilCountWrite);
+              Serial.println("valueToWriteCoil");
+              Serial.println(valueToWriteCoil);
+
+              send_modbus_writeCoil(startAddressWriteCoils,valueToWriteCoil);
+
+        AsyncResponseStream *response = request->beginResponseStream("application/json");
+        serializeJson(json_doc, *response);
+        request->send(response); });
+}
+
 void notFound(AsyncWebServerRequest *request)
 {
     request->send(404, "text/plain", "Not found");
@@ -346,7 +380,7 @@ void send_modbus_readHolding(uint16_t startAddressReadRegisters, uint16_t regCou
 {
     uint16_t res[regCount];
     if (!mb.slave())
-    {                                                                   // send modbus function code $03
+    {                                                                             // send modbus function code $03
         mb.readHreg(serverAddress, startAddressReadRegisters, res, regCount, cb); // Send Read Hreg from Modbus Server
 
         // Check if no transaction in progress
@@ -382,7 +416,7 @@ void send_modbus_readInput(uint16_t startAddressReadRegisters, uint16_t regCount
 {
     uint16_t res[regCount];
     if (!mb.slave())
-    {                                                                   // send modbus function code $04???
+    {                                                                             // send modbus function code $04???
         mb.readIreg(serverAddress, startAddressReadRegisters, res, regCount, cb); // Send Read IReg from Modbus Server
 
         // Check if no transaction in progress
@@ -406,6 +440,55 @@ void send_modbus_readInput(uint16_t startAddressReadRegisters, uint16_t regCount
             {
                 // Add the value at the end of the array
                 valoareRegistrii.add(res[i]);
+            }
+        }
+    }
+}
+
+void send_modbus_writeCoil(uint16_t startAddressWriteCoils, bool valueToWriteCoil)
+{ /*
+!!! ATENTIE Variabila valueToWriteCoil isi schimba rolul !!! Comportament observat - NU stiu de ce e asa.
+Prima data are rolul de a stoca valoarea check-boxului din fronted
+checked => 1 , unchecked => 0
+Apoi se apeleaza functia din libraria de modbus pentru scrierea Coil.
+
+Dupa ce s-a trimis cererea modbus catre slave acesta raspunde cu valoarea pe care o are Coils dupa scriere.
+Asemanator cu ce face butonul de Read Coils. Citeste starea Coils.
+Valoarea primita va fi stocata in variabila valueToWriteCoil. Aceasta is va schimba astfel valoarea pe care o avea inainte
+de a fi trimisa cererea.
+*/
+    uint16_t coilCountWrite = 1;
+    bool coils[coilCountWrite];
+
+    if (!mb.slave())
+    { // send modbus function code $05
+
+        mb.writeCoil(serverAddress, startAddressWriteCoils, valueToWriteCoil, cb);
+
+        while (mb.slave())
+        { // Check if transaction is active
+            mb.task();
+            delay(10);
+        }
+
+        Serial.println("\n");
+        Serial.printf("Request response = %.2d \n", valueToWriteCoil);
+        Serial.println();
+
+        if (transaction_code != 0)
+        { // sent to frontend the modbus response value
+            json_doc["transaction_code"] = transaction_code;
+            json_doc["slaveCoils"] = NULL;
+        }
+        else
+        {
+            json_doc["transaction_code"] = transaction_code;
+            // Create the array that stores the values
+            JsonArray valoareRegistrii = json_doc.createNestedArray("slaveCoils");
+            for (int i = 0; i < coilCountWrite; i++)
+            {
+                // Add the value at the end of the array
+                valoareRegistrii.add(coils[i]);
             }
         }
     }

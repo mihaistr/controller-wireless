@@ -1,4 +1,4 @@
-// functions for page dinamics
+// functions for page dynamics
 
 /* Create buttons to open specific tab content. 
 All <div> elements with class="tabcontent" are hidden by default (with CSS & JS). 
@@ -81,8 +81,9 @@ function update_consola(item_id, item_value) {  // print in console the action
   document.getElementById("consola").value += timestamp() + " ---> " + item_id + " = " + item_value + "\n";
   document.getElementById("consola").scrollTop = document.getElementById("consola").scrollHeight; //autoscroll
 }
-// todo change name
-function afisare_raspuns_modbus(parametru) {    // print cod succes sau eroare
+
+function afisare_transaction_code(parametru) {  // Exception Codes
+  // print cod succes sau eroare
   // parametru values are from modbus library error handling
 
   let text_raspuns_cerere;
@@ -113,9 +114,9 @@ function afisare_raspuns_modbus(parametru) {    // print cod succes sau eroare
   document.getElementById("consola").scrollTop = document.getElementById("consola").scrollHeight; //autoscroll
 
 }
-// todo change name
-function afisare_valoare_modbus(item_type, item_number, item_value) {   // print in console the modbus response value 
-  // item_type  = coil sau registru (register)
+
+function afisare_raspuns_primit(item_type, item_number, item_value) {   // print in console the modbus response value 
+  // item_type  = coil or registru (register)
   // item_number = register number 
   // item_value = actual register value
 
@@ -124,6 +125,7 @@ function afisare_valoare_modbus(item_type, item_number, item_value) {   // print
 }
 
 async function fetchCoilsValue() {   // trimitere cerere catre backend pentru citirea de coils
+                                    // send request to backend for read coils
 
   let startAddressReadCoils = document.getElementById("startAddressReadCoils").value;
   let coilCountRead = document.getElementById("coilCountRead").value;
@@ -138,7 +140,7 @@ async function fetchCoilsValue() {   // trimitere cerere catre backend pentru ci
 
     let resultJSON = await response.json();
 
-    afisare_raspuns_modbus(resultJSON.transaction_code);
+    afisare_transaction_code(resultJSON.transaction_code);
 
     for (let i = 0; i < resultJSON.slaveCoils.length; i++) {
       console.log(resultJSON.slaveCoils[i]);
@@ -148,7 +150,7 @@ async function fetchCoilsValue() {   // trimitere cerere catre backend pentru ci
       }
       else resultJSON.slaveCoils[i] = "off";
 
-      afisare_valoare_modbus("coil", parseInt(startAddressReadCoils) + i, resultJSON.slaveCoils[i]);
+      afisare_raspuns_primit("coil", parseInt(startAddressReadCoils) + i, resultJSON.slaveCoils[i]);
     }
 
   } else {
@@ -172,7 +174,7 @@ async function fetchDiscreteValue() {   // trimitere cerere catre backend pentru
 
     let resultJSON = await response.json();
 
-    afisare_raspuns_modbus(resultJSON.transaction_code);
+    afisare_transaction_code(resultJSON.transaction_code);
 
     for (let i = 0; i < resultJSON.slaveDiscrete.length; i++) {
       console.log(resultJSON.slaveDiscrete[i]);
@@ -182,7 +184,7 @@ async function fetchDiscreteValue() {   // trimitere cerere catre backend pentru
       }
       else resultJSON.slaveDiscrete[i] = "off";
 
-      afisare_valoare_modbus("discrete input", parseInt(startAddressReadCoils) + i, resultJSON.slaveDiscrete[i]);
+      afisare_raspuns_primit("discrete input", parseInt(startAddressReadCoils) + i, resultJSON.slaveDiscrete[i]);
       
     }
 
@@ -209,11 +211,11 @@ async function fetchHoldingValue() {    // trimitere cerere catre backend pentru
     console.log(resultJSON);
     console.log(typeof resultJSON.transaction_code);
 
-    afisare_raspuns_modbus(resultJSON.transaction_code);
+    afisare_transaction_code(resultJSON.transaction_code);
 
     for (let i = 0; i < resultJSON.slaveHolding.length; i++) {
       console.log(resultJSON.slaveHolding[i]);
-      afisare_valoare_modbus("registru", parseInt(startAddressReadRegisters) + i, resultJSON.slaveHolding[i]);
+      afisare_raspuns_primit("registru", parseInt(startAddressReadRegisters) + i, resultJSON.slaveHolding[i]);
     }
 
   } else {
@@ -239,11 +241,11 @@ async function fetchInputValue() {    // trimitere cerere catre backend pentru c
     console.log(resultJSON);
     console.log(typeof resultJSON.transaction_code);
 
-    afisare_raspuns_modbus(resultJSON.transaction_code);
+    afisare_transaction_code(resultJSON.transaction_code);
 
     for (let i = 0; i < resultJSON.slaveInput.length; i++) {
       console.log(resultJSON.slaveInput[i]);
-      afisare_valoare_modbus("registru", parseInt(startAddressReadRegisters) + i, resultJSON.slaveInput[i]);
+      afisare_raspuns_primit("registru", parseInt(startAddressReadRegisters) + i, resultJSON.slaveInput[i]);
     }
 
   } else {
@@ -251,3 +253,41 @@ async function fetchInputValue() {    // trimitere cerere catre backend pentru c
   }
 
 }
+
+async function writeCoilsValue() {   // trimitere cerere catre backend pentru scriere de coils
+  // send request to backend for write coils
+
+let startAddressWriteCoils = document.getElementById("startAddressWriteCoils").value;
+  let coilCountWrite = document.getElementById("coilCountWrite").value;
+  let valueToWriteCoil = document.getElementById("checkbox0").checked ? 1 : 0; // transform from true/false to 1/0 because 
+                                                                              // the URL is string and is converted to bool in C side
+document.getElementById("consola").value += timestamp() + " INIT: Write " + coilCountWrite + " coil at address: " + startAddressWriteCoils + "\n";
+
+//writeCoils?startAddresWriteCoils=0&coilCountWrite=1&valueToWriteCoil=1
+let url = "/writeCoils?startAddresWriteCoils=" + startAddressWriteCoils + "&coilCountWrite=" + coilCountWrite + "&valueToWriteCoil="+ valueToWriteCoil;
+let response = await fetch(url);
+
+if (response.ok) { // if HTTP-status is 200-299
+
+let resultJSON = await response.json();
+
+afisare_transaction_code(resultJSON.transaction_code);
+  console.log(resultJSON);
+
+for (let i = 0; i < resultJSON.slaveCoils.length; i++) {
+console.log(resultJSON.slaveCoils[i]);
+
+if (resultJSON.slaveCoils[i]) { // modify from true/false to modbus specific on/off
+resultJSON.slaveCoils[i] = "on";
+}
+else resultJSON.slaveCoils[i] = "off";
+
+afisare_raspuns_primit("coil", parseInt(startAddressWriteCoils) + i, resultJSON.slaveCoils[i]);
+}
+
+} else {
+alert("HTTP-Error: " + response.status);
+}
+
+}
+

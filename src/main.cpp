@@ -19,6 +19,7 @@ void setup()
   server_readDiscrete();
   server_readHolding();
   server_readInput();
+  server_writeCoils();
 }
 
 void loop()
