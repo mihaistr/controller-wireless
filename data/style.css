@@ -136,8 +136,21 @@ div.DiscreteAccess {
   
   padding: 10px 5px;
    /* uncomment to see the table lines */
+  /* border: 1px solid #ccc; */
+}
+
+ /* same thing as above just different name for readability */
+div.RegisterAccess {
+  border: 1px solid #ccc;
+  text-align: center;
+}
+.divTable.RegisterAccess .divTableCell, .divTable.RegisterAccess .divTableHead {
+  
+  padding: 10px 5px;
+   /* uncomment to see the table lines */
   border: 1px solid #ccc;
 }
+
 /* DivTable.com */
 .divTable{ display: table; }
 .divTableRow { display: table-row; }

@@ -83,9 +83,14 @@ function update_consola(item_id, item_value) {  // print in console the action
 }
 
 function update_checkbox_label(item_value) { // get the label of checkbox to match with the start adress of coil
-  
+
   document.getElementById("label_checkbox0").innerHTML = "Coil " + item_value;
-  console.log ("Coil " + item_value)
+  console.log("Coil " + item_value)
+}
+
+function update_register_number_label(item_value) { // get the label of register number box to match with the start adress of register
+  document.getElementById("label_numberRegisterValue").innerHTML = "Register " + item_value;
+  console.log("Register " + item_value)
 }
 
 // functinons to show the requested answer form slave
@@ -127,7 +132,7 @@ function afisare_raspuns_primit(item_type, item_number, item_value) {   // print
   // item_number = register number 
   // item_value = actual register value
 
-  document.getElementById("consola").value += timestamp() + " ---> " + "Valoare " + item_type + " " + item_number + " : " + item_value + "\n";
+  document.getElementById("consola").value += timestamp() + " ---> " + "Valoare " + item_type + " " + item_number + ": " + item_value + "\n";
   document.getElementById("consola").scrollTop = document.getElementById("consola").scrollHeight; //autoscroll
 }
 
@@ -269,7 +274,7 @@ async function writeCoilsValue() {   // trimitere cerere catre backend pentru sc
   let coilCountWrite = document.getElementById("coilCountWrite").value;
   let valueToWriteCoil = document.getElementById("checkbox0").checked ? 1 : 0; // transform from true/false to 1/0 because 
   // the URL is string and is converted to bool in C side
-  document.getElementById("consola").value += timestamp() + " INIT: Write " + coilCountWrite + " coil at address: " + startAddressWriteCoils + "\n";
+  document.getElementById("consola").value += timestamp() + " INIT: Write " + coilCountWrite + " coil at address: " + startAddressWriteCoils + " with value: " + valueToWriteCoil + "\n";
 
   //writeCoils?startAddresWriteCoils=0&coilCountWrite=1&valueToWriteCoil=1
   let url = "/writeCoils?startAddresWriteCoils=" + startAddressWriteCoils + "&coilCountWrite=" + coilCountWrite + "&valueToWriteCoil=" + valueToWriteCoil;
@@ -298,4 +303,39 @@ async function writeCoilsValue() {   // trimitere cerere catre backend pentru sc
   }
 
 }
+
+async function writeHoldingRegister() {   // trimitere cerere catre backend pentru scriere de Holding Register
+  // send request to backend for write holing register
+
+  let startAddressWriteRegisters = document.getElementById("startAddressWriteRegisters").value;
+  let registerCountWrite = document.getElementById("registerCountWrite").value;
+  let valueToWriteRegister = document.getElementById("numberRegisterValue").value;
+  // the URL is string and is converted to bool in C side
+  document.getElementById("consola").value += timestamp() + " INIT: Write " + registerCountWrite + " register at address: " + startAddressWriteRegisters + " with value: " + valueToWriteRegister + "\n";
+
+  //writeHreg?startAddressWriteRegisters=0&registerCountWrite=1&valueToWriteRegister=0
+  let url = "/writeHreg?startAddressWriteRegisters=" + startAddressWriteRegisters + "&registerCountWrite=" + registerCountWrite + "&valueToWriteRegister=" + valueToWriteRegister;
+  let response = await fetch(url);
+
+  if (response.ok) { // if HTTP-status is 200-299
+
+    let resultJSON = await response.json();
+
+    afisare_transaction_code(resultJSON.transaction_code);
+    console.log(resultJSON);
+
+    for (let i = 0; i < resultJSON.slaveHolding.length; i++) {
+      console.log(resultJSON.slaveHolding[i]);
+      afisare_raspuns_primit("registru", parseInt(startAddressWriteRegisters) + i, resultJSON.slaveHolding[i]);
+    }
+
+  } else {
+    alert("HTTP-Error: " + response.status);
+  }
+
+}
+
+
+
+
 

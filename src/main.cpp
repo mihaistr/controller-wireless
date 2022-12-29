@@ -20,6 +20,7 @@ void setup()
   server_readHolding();
   server_readInput();
   server_writeCoils();
+  server_writeHreg();
 }
 
 void loop()
@@ -37,4 +38,3 @@ void loop()
   yield(); // Passes control to other tasks when called.
            // Used in functions that will take awhile to complete.
 }
-

@@ -36,13 +36,18 @@ uint16_t baud_rate = 9600;
 uint16_t serverAddress = 1;
 
 uint16_t startAddressReadCoils = 1;
+uint16_t startAddressReadRegisters = 0;
+
 uint16_t startAddressWriteCoils;
+uint16_t startAddressWriteRegisters;
+
 uint16_t coilCountRead;
 uint16_t coilCountWrite;
-bool valueToWriteCoil;
+uint16_t registerCountRead = 1;
+uint16_t registerCountWrite;
 
-uint16_t startAddressReadRegisters = 0;
-uint16_t regCount = 1;
+bool valueToWriteCoil;
+uint16_t valueToWriteRegister;
 
 float voltage = 0; // value read
 
@@ -57,12 +62,13 @@ void server_start(); // start the web server ierface
 void server_settings(); // process the Settings tab requests
 
 // send the request to modbus slave, lisen, process response
-void send_modbus_readCoil(uint16_t startAddressReadCoils, uint16_t coilCountRead);     // function code 01
-void send_modbus_readDiscrete(uint16_t startAddressReadCoils, uint16_t coilCountRead); // function code 02
-void send_modbus_readHolding(uint16_t startAddressReadRegisters, uint16_t regCount);   // function code 03
-void send_modbus_readInput(uint16_t startAddressReadRegisters, uint16_t regCount);     // function code 04 ??? verifica daca is corecte
+void send_modbus_readCoil(uint16_t startAddressReadCoils, uint16_t coilCountRead);            // function code 01
+void send_modbus_readDiscrete(uint16_t startAddressReadCoils, uint16_t coilCountRead);        // function code 02
+void send_modbus_readHolding(uint16_t startAddressReadRegisters, uint16_t registerCountRead); // function code 03
+void send_modbus_readInput(uint16_t startAddressReadRegisters, uint16_t registerCountRead);   // function code 04 ??? verifica daca is corecte
 
-void send_modbus_writeCoil(uint16_t startAddressWriteCoils, bool valueToWriteCoil); // function code $05
+void send_modbus_writeCoil(uint16_t startAddressWriteCoils, bool valueToWriteCoil);             // function code $05
+void send_modbus_writeHreg(uint16_t startAddressWriteRegisters, uint16_t valueToWriteRegister); // function code $06
 
 void notFound(AsyncWebServerRequest *request); // in case the web page requested is not found
 
@@ -80,6 +86,7 @@ void server_readDiscrete(); // process the readDiscrete function tab request
 void server_readHolding();  // process the readHolding function tab request
 void server_readInput();    // process the readInput function tab request
 void server_writeCoils();   // process the writeCoils function tab request
+void server_writeHreg();    // process the writeHreg function tab request
 
 void wifi_start()
 {
@@ -190,13 +197,13 @@ void server_readDiscrete()
 
 void server_readHolding()
 {
-    // readHolding?startAddressReadRegisters=2&regCount=4
+    // readHolding?startAddressReadRegisters=2&registerCountRead=4
     server.on("/readHolding", HTTP_GET, [](AsyncWebServerRequest *request)
               {
         startAddressReadRegisters = request->getParam(0)->value().toInt();
-        regCount = request->getParam(1)->value().toInt();
+        registerCountRead = request->getParam(1)->value().toInt();
 
-        send_modbus_readHolding(startAddressReadRegisters, regCount);
+        send_modbus_readHolding(startAddressReadRegisters, registerCountRead);
 
         // todo: documentatie JSON
         AsyncResponseStream *response = request->beginResponseStream("application/json");
@@ -206,13 +213,13 @@ void server_readHolding()
 
 void server_readInput()
 {
-    // /readInput?startAddressReadRegisters=0&regCount=2
+    // /readInput?startAddressReadRegisters=0&registerCountRead=2
     server.on("/readInput", HTTP_GET, [](AsyncWebServerRequest *request)
               {
         startAddressReadRegisters = request->getParam(0)->value().toInt();
-        regCount = request->getParam(1)->value().toInt();
+        registerCountRead = request->getParam(1)->value().toInt();
 
-        send_modbus_readInput(startAddressReadRegisters, regCount);
+        send_modbus_readInput(startAddressReadRegisters, registerCountRead);
 
         // todo: documentatie JSON
         AsyncResponseStream *response = request->beginResponseStream("application/json");
@@ -240,6 +247,29 @@ void server_writeCoils()
               Serial.println(valueToWriteCoil);
 
               send_modbus_writeCoil(startAddressWriteCoils,valueToWriteCoil);
+
+        AsyncResponseStream *response = request->beginResponseStream("application/json");
+        serializeJson(json_doc, *response);
+        request->send(response); });
+}
+
+void server_writeHreg()
+{
+    //writeHreg?startAddressWriteRegisters=0&registerCountWrite=1&valueToWriteRegister=0
+    server.on("/writeHreg", HTTP_GET, [](AsyncWebServerRequest *request)
+              {
+              startAddressWriteRegisters = request->getParam(0)->value().toInt();
+              registerCountWrite = request->getParam(1)->value().toInt();
+              valueToWriteRegister = request->getParam(2)->value().toInt();
+
+              Serial.println("startAddressWriteRegisters"); // print in serial command for debug reasons
+              Serial.println(startAddressWriteRegisters);
+              Serial.println("registerCountWrite");
+              Serial.println(registerCountWrite);
+              Serial.println("valueToWriteRegister");
+              Serial.println(valueToWriteRegister);
+
+              send_modbus_writeHreg(startAddressWriteRegisters,valueToWriteRegister);
 
         AsyncResponseStream *response = request->beginResponseStream("application/json");
         serializeJson(json_doc, *response);
@@ -376,12 +406,12 @@ void send_modbus_readDiscrete(uint16_t startAddressReadCoils, uint16_t coilCount
     }
 }
 
-void send_modbus_readHolding(uint16_t startAddressReadRegisters, uint16_t regCount)
+void send_modbus_readHolding(uint16_t startAddressReadRegisters, uint16_t registerCountRead)
 {
-    uint16_t res[regCount];
+    uint16_t res[registerCountRead];
     if (!mb.slave())
-    {                                                                             // send modbus function code $03
-        mb.readHreg(serverAddress, startAddressReadRegisters, res, regCount, cb); // Send Read Hreg from Modbus Server
+    {                                                                                      // send modbus function code $03
+        mb.readHreg(serverAddress, startAddressReadRegisters, res, registerCountRead, cb); // Send Read Hreg from Modbus Server
 
         // Check if no transaction in progress
         while (mb.slave())
@@ -403,7 +433,7 @@ void send_modbus_readHolding(uint16_t startAddressReadRegisters, uint16_t regCou
             json_doc["transaction_code"] = transaction_code;
             // Create the array that stores the values
             JsonArray valoareRegistrii = json_doc.createNestedArray("slaveHolding");
-            for (int i = 0; i < regCount; i++)
+            for (int i = 0; i < registerCountRead; i++)
             {
                 // Add the value at the end of the array
                 valoareRegistrii.add(res[i]);
@@ -412,12 +442,12 @@ void send_modbus_readHolding(uint16_t startAddressReadRegisters, uint16_t regCou
     }
 }
 
-void send_modbus_readInput(uint16_t startAddressReadRegisters, uint16_t regCount)
+void send_modbus_readInput(uint16_t startAddressReadRegisters, uint16_t registerCountRead)
 {
-    uint16_t res[regCount];
+    uint16_t res[registerCountRead];
     if (!mb.slave())
-    {                                                                             // send modbus function code $04???
-        mb.readIreg(serverAddress, startAddressReadRegisters, res, regCount, cb); // Send Read IReg from Modbus Server
+    {                                                                                      // send modbus function code $04???
+        mb.readIreg(serverAddress, startAddressReadRegisters, res, registerCountRead, cb); // Send Read IReg from Modbus Server
 
         // Check if no transaction in progress
         while (mb.slave())
@@ -436,7 +466,7 @@ void send_modbus_readInput(uint16_t startAddressReadRegisters, uint16_t regCount
             json_doc["transaction_code"] = transaction_code;
             // Create the array that stores the values
             JsonArray valoareRegistrii = json_doc.createNestedArray("slaveInput");
-            for (int i = 0; i < regCount; i++)
+            for (int i = 0; i < registerCountRead; i++)
             {
                 // Add the value at the end of the array
                 valoareRegistrii.add(res[i]);
@@ -484,6 +514,39 @@ de a fi trimisa cererea.
             JsonArray valoareRegistrii = json_doc.createNestedArray("slaveCoils");
             // Add the value at the end of the array
             valoareRegistrii.add(valueToWriteCoil);
+        }
+    }
+}
+
+void send_modbus_writeHreg(uint16_t startAddressWriteRegisters, uint16_t valueToWriteRegister)
+{
+    if (!mb.slave())
+    { // send modbus function code $06
+
+        mb.writeHreg(serverAddress, startAddressWriteRegisters, valueToWriteRegister, cb);
+
+        while (mb.slave())
+        { // Check if transaction is active
+            mb.task();
+            delay(10);
+        }
+
+        Serial.println("\n");
+        Serial.printf("Request response = %.2d \n", valueToWriteRegister);
+        Serial.println();
+
+        if (transaction_code != 0)
+        { // sent to frontend the modbus response value
+            json_doc["transaction_code"] = transaction_code;
+            json_doc["slaveHolding"] = NULL;
+        }
+        else
+        {
+            json_doc["transaction_code"] = transaction_code;
+            // Create the array that stores the values
+            JsonArray valoareRegistrii = json_doc.createNestedArray("slaveHolding");
+            // Add the value at the end of the array
+            valoareRegistrii.add(valueToWriteRegister);
         }
     }
 }

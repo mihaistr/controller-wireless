@@ -40,7 +40,8 @@
         <button class="tablinks" onclick="openTab(event, 'tab_settings')">Settings</button>
         <button class="tablinks" onclick="openTab(event, 'tab_discreteAccess')" id="defaultOpen">Discrete
             Access</button>
-        <button class="tablinks" onclick="openTab(event, 'tab_registerAccess')">Register Access</button>
+        <button class="tablinks" onclick="openTab(event, 'tab_registerAccess')">Register
+            Access</button>
     </div>
     <!-- Tab content -->
     <form action="/settings" method="get">
@@ -136,6 +137,7 @@
 
     <!-- Tab Discrete Access -->
     <div id="tab_discreteAccess" class="tabcontent">
+
         <!-- DISCRETE READ -->
         <div class="divTable DiscreteAccess">
             <div class="divTableBody">
@@ -168,6 +170,7 @@
                 </div>
             </div>
         </div>
+        <!-- END OF DDISCRETE READ -->
 
         <!-- rand liber  -->
         <br>
@@ -225,13 +228,16 @@
 
             </div>
         </div>
+        <!-- END OF DISCRETE WRITE -->
 
     </div>
     <!-- End of Discrete Access Tab -->
 
     <!-- Register Access Tab  -->
     <div id="tab_registerAccess" class="tabcontent">
-        <div class="divTable DiscreteAccess">
+
+        <!-- REGISTER READ -->
+        <div class="divTable RegisterAccess">
             <div class="divTableBody">
                 <h2> Register Read </h2>
                 <div class="divTableRow">
@@ -260,6 +266,76 @@
                 </div>
             </div>
         </div>
+        <!-- END OF REGISTER READ  -->
+
+        <!-- rand liber  -->
+        <br>
+
+        <!-- REGISTER WRITE -->
+        <div class="divTable RegisterAccess">
+            <!-- keep this div name  "divTable RegisterAccess" to have CSS styling-->
+            <div class="divTableBody">
+                <h2>Register Write</h2>
+                <div class="divTableRow">
+                    <div class="divTableCell">
+
+                        <div class="divTable numberFields">
+                            <div class="divTableRow">
+                                <div class="divTableCell">
+                                    <div> Start Address <input type="number" id="startAddressWriteRegisters"
+                                            name="startAddressWriteRegisters" value="0" min="0" max="65535"
+                                            onclick="update_register_number_label(this.value)">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="divTableRow">
+                                <div class="divTableCell">
+                                    <div> Register Count <input type="number" id="registerCountWrite"
+                                            name="registerCountWrite" value="1" min="0" max="255" readonly>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="divTableCell">
+                        <div class="divTableRow">
+                            <div class="divTableCell">
+                                <label for="numberRegisterValue" id="label_numberRegisterValue"> Register 0</label>
+
+                            </div>
+
+                            <div class="divTableCell">
+                                <input type="number" id="numberRegisterValue" name="numberRegisterValue" value="0"
+                                    min="0" max="65535">
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="divTableRow">
+
+                    <div class="divTableCell">
+                        <button class="button_functie" id="button_writeRegister" onclick="writeHoldingRegister()"> Write
+                            Single Register</button>
+                    </div>
+
+                    <div class="divTableCell">
+                        <button class="button_functie" id="button_writeDiscrete" disabled> tbd Write Multiple Registers
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- END OF REGISTER WRITE -->
+
 
     </div>
     <!-- End of Register Access Tab -->
