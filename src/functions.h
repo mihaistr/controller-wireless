@@ -457,9 +457,6 @@ Asemanator cu ce face butonul de Read Coils. Citeste starea Coils.
 Valoarea primita va fi stocata in variabila valueToWriteCoil. Aceasta is va schimba astfel valoarea pe care o avea inainte
 de a fi trimisa cererea.
 */
-    uint16_t coilCountWrite = 1;
-    bool coils[coilCountWrite];
-
     if (!mb.slave())
     { // send modbus function code $05
 
@@ -485,11 +482,8 @@ de a fi trimisa cererea.
             json_doc["transaction_code"] = transaction_code;
             // Create the array that stores the values
             JsonArray valoareRegistrii = json_doc.createNestedArray("slaveCoils");
-            for (int i = 0; i < coilCountWrite; i++)
-            {
-                // Add the value at the end of the array
-                valoareRegistrii.add(coils[i]);
-            }
+            // Add the value at the end of the array
+            valoareRegistrii.add(valueToWriteCoil);
         }
     }
 }

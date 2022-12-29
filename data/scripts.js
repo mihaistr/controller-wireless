@@ -277,7 +277,7 @@ afisare_transaction_code(resultJSON.transaction_code);
 for (let i = 0; i < resultJSON.slaveCoils.length; i++) {
 console.log(resultJSON.slaveCoils[i]);
 
-if (resultJSON.slaveCoils[i]) { // modify from true/false to modbus specific on/off
+if (resultJSON.slaveCoils[i] == 1) { // modify from true/false to modbus specific on/off
 resultJSON.slaveCoils[i] = "on";
 }
 else resultJSON.slaveCoils[i] = "off";

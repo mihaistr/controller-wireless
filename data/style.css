@@ -122,6 +122,11 @@ button {
   width: 100%;
 }
 
+/* number fields width and style */
+/* select, input[type="number"]{
+  width:40%;
+  box-sizing:border-box;
+} */
 
 div.DiscreteAccess {
   border: 1px solid #ccc;
@@ -130,6 +135,8 @@ div.DiscreteAccess {
 .divTable.DiscreteAccess .divTableCell, .divTable.DiscreteAccess .divTableHead {
   
   padding: 10px 5px;
+   /* uncomment to see the table lines */
+  border: 1px solid #ccc;
 }
 /* DivTable.com */
 .divTable{ display: table; }
