@@ -31,70 +31,71 @@
     </div>
 
     <br>
-    <h2>Modbus Connection Options </h2><br>  
+    <h2>Modbus Connection Options </h2><br>
 
     <!-- Tab links -->
     <div class="tab">
-        <button class="tablinks" onclick="openTab(event, 'tab_settings')">Settings</button>
-        <button class="tablinks" onclick="openTab(event, 'tab_discreteAccess')" id="defaultOpen">Discrete
+        <button class="tablinks" onclick="openTab(event, 'tab_settings')" id="defaultOpen">Settings</button>
+        <button class="tablinks" onclick="openTab(event, 'tab_discreteAccess')">Discrete
             Access</button>
         <button class="tablinks" onclick="openTab(event, 'tab_registerAccess')">Register
             Access</button>
     </div>
 
     <!-- SETTINGS TAB -->
-    <!-- todo: send JSON request instead of GET -->
-    <form action="/settings" method="get">
-        <div id="tab_settings" class="tabcontent">
-            <div class="row_settings">
+    <div id="tab_settings" class="tabcontent">
 
-                <div class="column_settings">
-                    <h2 style="margin: 10px">Server Adress</h2>
-                    <input style="margin: 5px" type="number" id="serverAdress" name="serverAdress" value="1" min="1"
-                        max="247" onclick="update_consola('Server Adress', this.value)"><br>
+        <div class="divTable Settings">
+            <div class="divTableBody">
+                <!-- Server address -->
+                <div class="divTableRow">
+                    <div class="divTableCell">
+                        <p> Server (Slave) Address</p>
+                        <input type="number" id="serverAddress" name="serverAddress" value="1" min="1" max="247"><br>
+                    </div>
                 </div>
 
-                <div class="column_settings">
-                    <div class="baud_rate">
+                <!-- Baud rate -->
+                <div class="divTableRow">
+                    <div class="divTableCell">
                         <p id="setting_baud_rate">Baud Rate [bps]</p>
 
-                        <input disabled type="radio" id="bdr_4800" name="baud_rate" value="4800"
-                            onclick="update_consola('Baud Rate', this.value)">
+                        <input type="radio" id="bdr_4800" name="baud_rate" value="4800" disabled>
                         <label for="bdr_4800">4800</label><br>
 
-                        <input type="radio" id="bdr_9600" name="baud_rate" value="9600" checked
-                            onclick="update_consola('Baud Rate', this.value)">
+                        <input type="radio" id="bdr_9600" name="baud_rate" value="9600" checked>
                         <label for="bdr_9600">9600</label><br>
 
-                        <input disabled type="radio" id="bdr_14400" name="baud_rate" value="14400"
-                            onclick="update_consola('Baud Rate', this.value)">
+                        <input type="radio" id="bdr_14400" name="baud_rate" value="14400" disabled>
                         <label for="bdr_14400">14400</label><br>
 
-                        <input disabled type="radio" id="bdr_19200" name="baud_rate" value="19200"
-                            onclick="update_consola('Baud Rate',this.value)">
+                        <input type="radio" id="bdr_19200" name="baud_rate" value="19200" disabled>
                         <label for="bdr_19200">19200</label><br>
 
                     </div>
                 </div>
 
-                <div class="column_settings">
-                    <div class="data_bits">
+                <!-- Data bits -->
+                <!-- todo: future development -->
+                <div class="divTableRow">
+                    <div class="divTableCell">
+
                         <p id="setting_databits">Data Bits</p>
 
-                        <input type="radio" id="databits_8" name="databits" value="8" checked="checked"
-                            onclick="update_consola('Data Bits',this.value)">
+                        <input type="radio" id="databits_8" name="databits" value="8" checked="checked">
                         <label for="databits_8">8 bits</label><br>
 
-                        <!-- for future development -->
-                        <input type="radio" id="databits_7" name="databits" value="7" disabled
-                            onclick="update_consola('Data Bits',this.value)">
+                        <input type="radio" id="databits_7" name="databits" value="7" disabled>
                         <label for="databits_7">7 bits</label><br>
 
                     </div>
                 </div>
 
-                <div class="column_settings">
-                    <div class="parity">
+                <!-- Parity -->
+                <!-- todo: future development -->
+                <div class="divTableRow">
+                    <div class="divTableCell">
+
                         <p id="settings_parity">Parity</p>
 
                         <input type="radio" id="parity_none" name="parity" value="none" disabled>
@@ -103,20 +104,21 @@
                         <input type="radio" id="parity_odd" name="parity" value="odd" disabled>
                         <label for="parity_odd">Odd</label><br>
 
-                        <input type="radio" id="parity_even" name="parity" value="even" checked="checked"
-                            onclick="update_consola('Parity',this.value)">
+                        <input type="radio" id="parity_even" name="parity" value="even" checked="checked">
                         <label for="parity_even">Even</label><br>
 
                     </div>
                 </div>
 
-                <div class="column_settings">
-                    <div class="stop_bits">
+                <!-- Stop Bits -->
+                <!-- todo: future development -->
+                <div class="divTableRow">
+                    <div class="divTableCell">
+
                         <p>Stop Bits</p>
 
-                        <input type="radio" id="stopBits_1" name="stopBits" value="1" checked="checked"
-                            onclick="update_consola('Stop Bits',this.value)">
-                        <label for="stopBits_1">1 bit</label><br>
+                        <input type="radio" id="stopbits_1" name="stopbits" value="1" checked="checked">
+                        <label for="stopbits_1">1 bit</label><br>
                         <!-- for future development -->
                         <input type="radio" id="stopbits_2" name="stopbits" value="2" disabled>
                         <label for="stopbits_2">2 bit</label><br>
@@ -124,22 +126,26 @@
                     </div>
                 </div>
 
-                <div class="column_settings">
-                    <button style="margin: 10px" id="settings_ok" onclick=submit_value(settings_ok)> Submit Settings
-                    </button><br><br><br>
+                <div class="divTableRow">
+                    <div class="divTableCell">
+
+                        <button class="button_functie" id="button_submitSettings" onclick="submitSettings()"> Submit
+                            Settings
+                        </button>
+
+                    </div>
                 </div>
+
             </div>
-
         </div>
-
-    </form>
+    </div>
     <!-- END OF SETTINGS TAB  -->
 
     <!-- DISCRETE ACCESS TAB -->
     <div id="tab_discreteAccess" class="tabcontent">
 
         <!-- DISCRETE READ -->
-        <div class="divTable DiscreteAccess">
+        <div class="divTable Table">
             <div class="divTableBody">
                 <h2>Discrete Read</h2>
                 <div class="divTableRow">
@@ -176,8 +182,7 @@
         <br>
 
         <!-- DISCRETE WRITE -->
-        <div class="divTable DiscreteAccess">
-            <!-- keep this div name  "divTable DiscreteAccess" to have CSS styling-->
+        <div class="divTable Table">
             <div class="divTableBody">
                 <h2>Discrete Write</h2>
                 <div class="divTableRow">
@@ -237,7 +242,7 @@
     <div id="tab_registerAccess" class="tabcontent">
 
         <!-- REGISTER READ -->
-        <div class="divTable RegisterAccess">
+        <div class="divTable Table">
             <div class="divTableBody">
                 <h2> Register Read </h2>
                 <div class="divTableRow">
@@ -272,8 +277,7 @@
         <br>
 
         <!-- REGISTER WRITE -->
-        <div class="divTable RegisterAccess">
-            <!-- keep this div name  "divTable RegisterAccess" to have CSS styling-->
+        <div class="divTable Table">
             <div class="divTableBody">
                 <h2>Register Write</h2>
                 <div class="divTableRow">
@@ -337,6 +341,7 @@
     <!-- END OF REGISTER ACCESS TAB -->
 
     <div><br>
+        <div id="result"></div>
         <!-- text console to inform user about the actions taken -->
         <textarea id="consola" name="consola" rows="15" cols="55" readonly></textarea>
     </div>
