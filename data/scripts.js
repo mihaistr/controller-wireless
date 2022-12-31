@@ -28,23 +28,6 @@ function default_open() {
 
 function startup() {  // things that needs to be set at startup
 
-  // block the default behavior (refresh) of the buttons
-  document.getElementById("button_readCoils").addEventListener("click", function (event) {
-    event.preventDefault()
-  });
-
-  document.getElementById("button_readDiscrete").addEventListener("click", function (event) {
-    event.preventDefault()
-  });
-
-  document.getElementById("button_readHolding").addEventListener("click", function (event) {
-    event.preventDefault()
-  });
-
-  document.getElementById("button_readInput").addEventListener("click", function (event) {
-    event.preventDefault()
-  });
-
   if (!!window.EventSource) {
     var source = new EventSource('/events');
 
@@ -320,7 +303,7 @@ async function writeHoldingRegister() {   // trimitere cerere catre backend pent
   let startAddressWriteRegisters = document.getElementById("startAddressWriteRegisters").value;
   let registerCountWrite = document.getElementById("registerCountWrite").value;
   let valueToWriteRegister = document.getElementById("numberRegisterValue").value;
-  // the URL is string and is converted to bool in C side
+
   document.getElementById("consola").value += timestamp() + " INIT: Write " + registerCountWrite + " register at address: " + startAddressWriteRegisters + " with value: " + valueToWriteRegister + "\n";
 
   //writeHreg?startAddressWriteRegisters=0&registerCountWrite=1&valueToWriteRegister=0
@@ -343,6 +326,38 @@ async function writeHoldingRegister() {   // trimitere cerere catre backend pent
   } else {
     alert("HTTP-Error: " + response.status);
   }
+
+}
+
+async function submitSettings() {   // trimitere cerere catre backend cu setarile
+  let serverAddress = document.getElementById("serverAddress");
+  let url = "/settings?" + serverAddress.name + "=" + serverAddress.value + "&";
+
+
+  var ele = document.getElementsByTagName('input');
+
+  for (i = 0; i < 12; i++) {
+    if (ele[i].type == "radio") {
+
+      if (ele[i].checked)
+        url += ele[i].name + "=" + ele[i].value + "&";
+      // console.log(ele[i].name, ele[i].value, i)
+      // de aici rezulta ca stopbits 2 12 => nu are sens sa se continue pana la ele.length
+    }
+  }
+
+  // console.log(url);
+
+  let response = await fetch(url);
+
+  if (response.ok) { // if HTTP-status is 200-299
+    let resultJSON = await response.json();
+    console.log("submit_settings_status:",resultJSON.submit_settings_status);
+
+  } else {
+    alert("HTTP-Error: " + response.status);
+  }
+
 
 }
 

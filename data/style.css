@@ -128,23 +128,23 @@ button {
   box-sizing:border-box;
 } */
 
-div.DiscreteAccess {
+div.Table {
   border: 1px solid #ccc;
   text-align: center;
 }
-.divTable.DiscreteAccess .divTableCell, .divTable.DiscreteAccess .divTableHead {
+.divTable.Table .divTableCell, .divTable.Table .divTableHead {
   
   padding: 10px 5px;
    /* uncomment to see the table lines */
   /* border: 1px solid #ccc; */
 }
 
- /* same thing as above just different name for readability */
-div.RegisterAccess {
+/* Same things as above but for Settings.  */
+div.Settings {
   border: 1px solid #ccc;
-  text-align: center;
+  text-align: left;
 }
-.divTable.RegisterAccess .divTableCell, .divTable.RegisterAccess .divTableHead {
+.divTable.Settings .divTableCell, .divTable.Table .divTableHead {
   
   padding: 10px 5px;
    /* uncomment to see the table lines */

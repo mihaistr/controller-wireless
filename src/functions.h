@@ -31,7 +31,7 @@ unsigned long timerDelay = 120000; // send readings timer
 uint16_t databits, stopBits; // for future development
 uint16_t functionCode;       // for future development
 
-char parity; // for future development
+String parity; // for future development
 
 uint16_t baud_rate = 9600;
 uint16_t serverAddress = 1;
@@ -125,20 +125,28 @@ void server_settings()
 {
     // settings?serverAddress=1&baud_rate=9600&databits=8&parity=even&stopBits=1
     server.on("/settings", HTTP_GET, [](AsyncWebServerRequest *request)
-              {   
-                // atribuire valorile parametrilor 
-                serverAddress = request->getParam(0)->value().toInt();
-                baud_rate = request->getParam(1)->value().toInt();
-                databits = request->getParam(2)->value().toInt();
-                stopBits = request->getParam(4)->value().toInt();
+              {
+                  // atribuire valorile parametrilor
+                  serverAddress = request->getParam(0)->value().toInt();
+                  baud_rate = request->getParam(1)->value().toInt();
+                  databits = request->getParam(2)->value().toInt();
+                  parity = request->getParam(3)->value();
+                  stopBits = request->getParam(4)->value().toInt();
 
-                // Serial.println("serverAddress:"); // print in serial command for debug reasons
-                // Serial.println(serverAddress);
-                // Serial.println("baudrate:");
-                // Serial.println(baud_rate);
-                                             
-                // reincarcare interfata web
-                request->send(LittleFS, "/interfata_grafica.html", String(), false, processor); });
+                //   Serial.println("serverAddress:"); // print in serial command for debug reasons
+                //   Serial.println(serverAddress);
+                //   Serial.println("baudrate:");
+                //   Serial.println(baud_rate);
+                //   Serial.println("parity:");
+                //   Serial.println(parity);
+                //   Serial.println("stopBits:");
+                //   Serial.println(stopBits);
+
+                  json_doc["submit_settings_status"] = "OK";
+
+                  AsyncResponseStream *response = request->beginResponseStream("application/json");
+                  serializeJson(json_doc, *response);
+                  request->send(response); });
 }
 
 void server_readCoils()
